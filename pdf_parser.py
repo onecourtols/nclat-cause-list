@@ -102,18 +102,18 @@ def _detect_col_keys(data_rows: List[List], num_cols: int) -> List[str]:
             col_keys[i] = "case_no"
             break
 
-    # Last 3 cols → counsel
-    if num_cols >= 4:
+    # Last 2 cols → counsel (one per side — wider tables have extra empty middle cols)
+    if num_cols >= 2:
         col_keys[num_cols - 1] = "counsel_respondent"
+    if num_cols >= 3:
         col_keys[num_cols - 2] = "counsel_appellant"
-    if num_cols >= 5:
-        col_keys[num_cols - 3] = "counsel_appellant"
 
-    # Cols between case_no and counsel block with content → parties
+    # ALL middle cols (between case_no and counsel) → parties
+    # We label every slot; _build_records skips cells with empty values
     case_no_idx = next((i for i, k in enumerate(col_keys) if k == "case_no"), 1)
-    counsel_start = max(num_cols - 3, case_no_idx + 1) if num_cols >= 5 else num_cols - 1
+    counsel_start = num_cols - 2 if num_cols >= 3 else num_cols
     for i in range(case_no_idx + 1, counsel_start):
-        if col_keys[i] == "" and samples[i]:
+        if col_keys[i] == "":
             col_keys[i] = "parties"
 
     return col_keys
@@ -167,10 +167,14 @@ def _merge_continuation_rows(data_rows: List[List], num_cols: int) -> List[List[
     return merged_data
 
 
-def _parse_table(raw_table: List[List]) -> List[Dict]:
+def _parse_table(raw_table: List[List], learned_keys: Optional[Dict] = None) -> List[Dict]:
     """
     Parse a pdfplumber table into case-item dicts.
     Handles split headers, continuation rows, duplicate columns, and missing headers.
+
+    learned_keys: dict of {num_cols: col_keys} shared across tables in the same PDF.
+    When a headed table is parsed, its col_keys are stored in learned_keys.
+    When a headerless table is parsed, learned_keys are used if available.
     """
     if not raw_table or len(raw_table) < 2:
         return []
@@ -203,9 +207,23 @@ def _parse_table(raw_table: List[List]) -> List[Dict]:
                 if val:
                     merged_hdr[i] = (merged_hdr[i] + " " + val).strip() if merged_hdr[i] else val
         col_keys = [_map_header(h) for h in merged_hdr]
+        # Fill any unmapped middle cols (between case_no and counsel) as 'parties'
+        # so that headers with None cells don't produce gaps in learned_keys
+        _cn = next((i for i, k in enumerate(col_keys) if k == "case_no"), 1)
+        _counsel = [i for i, k in enumerate(col_keys) if k in ("counsel_appellant", "counsel_respondent")]
+        _cs = min(_counsel) if _counsel else num_cols
+        for _i in range(_cn + 1, _cs):
+            if col_keys[_i] == "":
+                col_keys[_i] = "parties"
+        # Cache for subsequent headerless tables with the same column count
+        if learned_keys is not None and num_cols not in learned_keys:
+            learned_keys[num_cols] = col_keys
     elif data_rows:
-        # No header row — detect column roles from content
-        col_keys = _detect_col_keys(data_rows, num_cols)
+        # No header row — use learned mapping if available, else detect from content
+        if learned_keys and num_cols in learned_keys:
+            col_keys = learned_keys[num_cols]
+        else:
+            col_keys = _detect_col_keys(data_rows, num_cols)
     else:
         return []
 
@@ -354,6 +372,9 @@ def fetch_and_parse(pdf_url: str, timeout: int = 30) -> List[Dict]:
 
     all_items: List[Dict] = []
 
+    # Shared column-key cache: learned from headed tables, reused by headerless ones
+    learned_keys: Dict[int, List[str]] = {}
+
     with pdfplumber.open(io.BytesIO(resp.content)) as pdf:
         for page_num, page in enumerate(pdf.pages, start=1):
             try:
@@ -371,7 +392,7 @@ def fetch_and_parse(pdf_url: str, timeout: int = 30) -> List[Dict]:
                         all_items.extend(_merge_split_pair(table, tables[i + 1]))
                         i += 2
                     else:
-                        all_items.extend(_parse_table(table))
+                        all_items.extend(_parse_table(table, learned_keys=learned_keys))
                         i += 1
             except Exception as exc:
                 logger.warning("Page %d parse error (%s): %s", page_num, pdf_url, exc)
