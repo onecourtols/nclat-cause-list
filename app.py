@@ -12,9 +12,13 @@ Or with gunicorn (production):
 
 import logging
 import os
+import time
+import uuid
 from datetime import datetime
 
-from flask import Flask, jsonify, render_template, request
+import requests as _http
+from bs4 import BeautifulSoup
+from flask import Flask, jsonify, make_response, render_template, request
 
 from database import init_db, get_available_dates, get_cause_list, get_last_scrape
 
@@ -107,6 +111,150 @@ def api_status():
         "server_time": datetime.utcnow().isoformat() + "Z",
         "courts": COURTS,
     })
+
+
+# ---------------------------------------------------------------------------
+# SCI Case Status proxy
+# ---------------------------------------------------------------------------
+
+_SCI_SESSIONS: dict = {}
+_SCI_INIT_URL = "https://www.sci.gov.in/case-status-case-no/"
+_SCI_AJAX_URL = "https://www.sci.gov.in/wp-admin/admin-ajax.php"
+_SCI_UA = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+)
+_SCI_SESSION_TTL = 300  # 5 minutes
+
+
+def _sci_cors(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    return response
+
+
+def _sci_purge_old():
+    cutoff = time.time() - _SCI_SESSION_TTL
+    for k in [k for k, v in _SCI_SESSIONS.items() if v.get("ts", 0) < cutoff]:
+        _SCI_SESSIONS.pop(k, None)
+
+
+@app.route("/api/sci/init", methods=["GET", "OPTIONS"])
+def sci_init():
+    if request.method == "OPTIONS":
+        return _sci_cors(make_response("", 204))
+    try:
+        _sci_purge_old()
+        sess = _http.Session()
+        resp = sess.get(
+            _SCI_INIT_URL,
+            headers={"User-Agent": _SCI_UA, "Accept": "text/html"},
+            timeout=15,
+        )
+        resp.raise_for_status()
+
+        soup = BeautifulSoup(resp.text, "lxml")
+        form = soup.find("form", id="sciapi-services-case-status-case-no")
+        if not form:
+            return _sci_cors(jsonify({"error": "SCI form not found on page"})), 500
+
+        hidden = {}
+        scid = ""
+        for inp in form.find_all("input"):
+            name = inp.get("name", "")
+            value = inp.get("value", "")
+            if not name:
+                continue
+            if name == "scid":
+                scid = value
+            hidden[name] = value
+
+        token = str(uuid.uuid4())
+        _SCI_SESSIONS[token] = {
+            "cookies": dict(sess.cookies),
+            "hidden": hidden,
+            "scid": scid,
+            "captcha_url": f"https://www.sci.gov.in/?_siwp_captcha&id={scid}" if scid else "",
+            "ts": time.time(),
+        }
+
+        return _sci_cors(jsonify({"token": token, "scid": scid, "hiddenFields": hidden}))
+    except Exception as e:
+        logger.exception("sci_init error")
+        return _sci_cors(jsonify({"error": str(e)})), 500
+
+
+@app.route("/api/sci/captcha-img", methods=["POST", "OPTIONS"])
+def sci_captcha_img():
+    if request.method == "OPTIONS":
+        return _sci_cors(make_response("", 204))
+    try:
+        data = request.json or {}
+        token = data.get("token", "")
+        sd = _SCI_SESSIONS.get(token)
+        if not sd:
+            return _sci_cors(jsonify({"error": "Session not found or expired"})), 404
+
+        img_resp = _http.get(
+            sd["captcha_url"],
+            cookies=sd["cookies"],
+            headers={"User-Agent": _SCI_UA, "Referer": _SCI_INIT_URL},
+            timeout=10,
+        )
+        img_resp.raise_for_status()
+
+        response = make_response(img_resp.content)
+        response.headers["Content-Type"] = img_resp.headers.get("Content-Type", "image/png")
+        return _sci_cors(response)
+    except Exception as e:
+        logger.exception("sci_captcha_img error")
+        return _sci_cors(jsonify({"error": str(e)})), 500
+
+
+@app.route("/api/sci/search", methods=["POST", "OPTIONS"])
+def sci_search():
+    if request.method == "OPTIONS":
+        return _sci_cors(make_response("", 204))
+    try:
+        data = request.json or {}
+        token = data.get("token", "")
+        sd = _SCI_SESSIONS.get(token)
+        if not sd:
+            return _sci_cors(jsonify({
+                "success": False,
+                "data": {"message": "Session expired — please refresh the CAPTCHA."},
+            }))
+
+        form_data = dict(sd["hidden"])
+        form_data.update(data.get("hiddenFields", {}))
+        form_data["action"] = "get_case_status_case_no"
+        form_data["es_ajax_request"] = "1"
+        form_data["case_type"] = str(data.get("caseType", ""))
+        form_data["case_no"] = str(data.get("caseNo", ""))
+        form_data["year"] = str(data.get("year", ""))
+        form_data["siwp_captcha_value"] = str(data.get("captchaAnswer", ""))
+        form_data["submit"] = "Search"
+
+        search_resp = _http.post(
+            _SCI_AJAX_URL,
+            data=form_data,
+            cookies=sd["cookies"],
+            headers={
+                "User-Agent": _SCI_UA,
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-Requested-With": "XMLHttpRequest",
+                "Referer": _SCI_INIT_URL,
+            },
+            timeout=20,
+        )
+        search_resp.raise_for_status()
+
+        _SCI_SESSIONS.pop(token, None)
+        return _sci_cors(jsonify(search_resp.json()))
+    except Exception as e:
+        logger.exception("sci_search error")
+        return _sci_cors(jsonify({"success": False, "data": {"message": str(e)}})), 500
 
 
 # ---------------------------------------------------------------------------
