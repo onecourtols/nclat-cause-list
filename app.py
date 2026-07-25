@@ -62,6 +62,11 @@ def index():
     return render_template("index.html", courts=COURTS)
 
 
+@app.route("/case-status.html")
+def case_status():
+    return render_template("case-status.html")
+
+
 @app.route("/api/dates")
 def api_dates():
     """Return available dates from the DB."""
