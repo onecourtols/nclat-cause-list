@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NCLAT Daily Cause List — OneCourt</title>
+<style>
+:root{
+  --ink:#1A2027; --paper:#F7F8FA; --panel:#F1F3F6; --card-alt:#EEF0F3;
+  --line:#E4E7EC; --primary:#1E2733; --on-primary:#EBF0F6; --nav-dim:#9AA7B8;
+  --accent:#2563EB; --accent-dark:#1D4ED8; --accent-bg:#EAF1FD;
+  --gold:#C39A52; --muted:#5A6472; --faint:#98A1AD;
+  --ok:#1F8A5F; --danger:#DC2626; --warn:#B45309; --warn-bg:#FEF3C7;
+  --supp-bg:#FFFBEB; --supp-border:#D97706;
+  --font-ui:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',Helvetica,Arial,sans-serif;
+  --font-mono:Helvetica,Arial,sans-serif;
+  --font-doc:'Times New Roman',Times,serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{margin:0;padding:0;}
+body{font-family:var(--font-ui);background:var(--panel);color:var(--ink);font-size:13.5px;line-height:1.55;min-height:100vh;display:flex;flex-direction:column;}
+[hidden]{display:none!important;}
+
+/* ── SITE HEADER ─────────────────────────────────────────────── */
+.site-header{background:var(--primary);color:var(--on-primary);position:sticky;top:0;z-index:40;}
+.site-header .inner{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px;padding:0 24px;}
+.site-header .left{display:flex;align-items:center;gap:12px;}
+.oc-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;}
+.oc-logo:hover{opacity:.85;}
+.oc-logo .mark{width:34px;height:34px;color:var(--on-primary);display:flex;align-items:center;justify-content:center;}
+.oc-logo .name{font-size:20px;font-weight:700;letter-spacing:-.01em;}
+.site-header .tag{font-size:11px;color:var(--nav-dim);border-left:1px solid rgba(255,255,255,.16);padding-left:12px;margin-left:4px;letter-spacing:.08em;text-transform:uppercase;font-family:var(--font-mono);}
+.site-header .right{display:flex;align-items:center;gap:20px;}
+.oc-nav{display:flex;align-items:center;gap:20px;font-size:13.5px;}
+.oc-nav a.oc-navlink{color:rgba(255,255,255,.72);text-decoration:none;white-space:nowrap;}
+.oc-nav a.oc-navlink:hover{color:#fff;}
+details.oc-tools{position:relative;}
+details.oc-tools>summary{list-style:none;outline:none;cursor:pointer;color:rgba(255,255,255,.72);display:inline-flex;align-items:center;gap:6px;white-space:nowrap;font-size:13.5px;}
+details.oc-tools>summary:hover{color:#fff;}
+details.oc-tools>summary::-webkit-details-marker{display:none;}
+details.oc-tools>summary .car{font-family:var(--font-mono);font-size:10px;}
+details.oc-tools[open]>summary .car{display:inline-block;transform:rotate(180deg);}
+details.oc-tools .menu{position:absolute;top:calc(100% + 14px);right:0;min-width:240px;background:#fff;border:1px solid rgba(0,0,0,.1);box-shadow:0 12px 34px rgba(0,0,0,.2);padding:6px;z-index:60;}
+details.oc-tools .menu a{display:block;padding:10px 12px;text-decoration:none;color:#1b2530;font-size:13.5px;}
+details.oc-tools .menu a:hover{background:rgba(0,0,0,.05);}
+details.oc-tools .menu a.current{font-weight:600;background:rgba(0,0,0,.05);}
+.oc-contact{display:inline-flex;align-items:center;text-decoration:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;padding:8px 16px;border:1.5px solid var(--accent);white-space:nowrap;}
+.oc-contact:hover{background:var(--accent-dark);border-color:var(--accent-dark);}
+
+/* ── PAGE HEADER ─────────────────────────────────────────────── */
+.app{max-width:1180px;margin:0 auto;padding:28px 24px 64px;flex:1;}
+header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;border-bottom:2px solid var(--ink);padding-bottom:16px;margin-bottom:24px;}
+header.top .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:8px;}
+header.top h1{font-size:30px;margin:0;font-weight:500;letter-spacing:-.015em;line-height:1.05;}
+header.top h1 em{font-style:normal;color:var(--accent);}
+header.top .desc{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.6;}
+.header-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;}
+.last-scraped{font-size:11px;color:var(--muted);}
+.btn-refresh{background:none;border:1.5px solid var(--line);color:var(--ink);padding:7px 16px;font-size:12.5px;font-family:var(--font-ui);cursor:pointer;font-weight:600;display:flex;align-items:center;gap:6px;}
+.btn-refresh:hover{border-color:var(--accent);color:var(--accent);}
+.btn-refresh.loading{opacity:.5;cursor:not-allowed;}
+
+/* ── DATE PILLS ──────────────────────────────────────────────── */
+.date-row{display:flex;align-items:center;gap:10px;margin-bottom:20px;overflow-x:auto;padding-bottom:2px;}
+.date-row-label{font-size:11px;font-family:var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+.date-pill{padding:5px 14px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);font-size:12.5px;font-family:var(--font-ui);cursor:pointer;white-space:nowrap;transition:border-color .1s,background .1s,color .1s;}
+.date-pill:hover{border-color:var(--accent);color:var(--accent);}
+.date-pill.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+
+/* ── COURT TABS ──────────────────────────────────────────────── */
+.tabs-wrap{background:var(--paper);border:1px solid var(--line);}
+.tabs-header{display:flex;overflow-x:auto;border-bottom:2px solid var(--line);background:var(--card-alt);}
+.tabs-header::-webkit-scrollbar{display:none;}
+.tab-btn{display:flex;flex-direction:column;padding:10px 16px;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;background:none;cursor:pointer;color:var(--muted);white-space:nowrap;font-family:var(--font-ui);transition:color .1s;gap:2px;position:relative;}
+.tab-btn:hover{color:var(--ink);}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);background:var(--paper);}
+.tab-label{font-size:13px;font-weight:600;}
+.tab-city{font-size:10.5px;font-family:var(--font-mono);letter-spacing:.05em;opacity:.65;}
+.tab-badge{position:absolute;top:7px;right:7px;background:var(--accent);color:#fff;font-size:10px;font-weight:700;border-radius:9px;padding:.1em .45em;line-height:1.5;}
+
+/* ── SEARCH BAR ──────────────────────────────────────────────── */
+.search-row{padding:10px 16px;border-bottom:1px solid var(--line);background:var(--card-alt);display:flex;align-items:center;gap:8px;}
+.search-icon{color:var(--muted);font-size:13px;}
+.search-input{flex:1;border:1.5px solid var(--line);padding:7px 11px;font-size:13px;font-family:var(--font-ui);color:var(--ink);background:#fff;outline:none;max-width:500px;}
+.search-input:focus{border-color:var(--accent);}
+.match-count{font-size:11px;color:var(--muted);}
+.btn-clear{background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px;line-height:1;padding:0 2px;}
+.btn-clear:hover{color:var(--ink);}
+
+/* ── PANELS ──────────────────────────────────────────────────── */
+.tab-panel:not(.active){display:none;}
+.panel-loading{display:flex;align-items:center;gap:10px;padding:32px 20px;color:var(--muted);font-size:13px;}
+.spinner{width:18px;height:18px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.panel-empty{padding:32px 20px;text-align:center;color:var(--muted);font-size:13px;}
+
+/* ── LIST SECTIONS ───────────────────────────────────────────── */
+.list-section{padding:16px 16px 20px;}
+.list-section+.list-section{border-top:1px solid var(--line);}
+.list-section.supplementary{background:var(--supp-bg);border-left:3px solid var(--supp-border);}
+.section-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap;}
+.section-title{display:flex;align-items:center;gap:7px;font-size:10px;font-family:var(--font-mono);letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--ink);}
+.section-badge{background:var(--card-alt);color:var(--muted);padding:.1em .55em;font-size:10px;font-weight:700;border-radius:9px;font-family:var(--font-mono);text-transform:none;letter-spacing:0;}
+.list-section.supplementary .section-title{color:var(--warn);}
+.list-section.supplementary .section-badge{background:#FDE68A;color:var(--warn);}
+.pdf-link{font-size:11.5px;color:var(--accent);text-decoration:none;border:1px solid var(--line);padding:3px 9px;}
+.pdf-link:hover{background:var(--accent-bg);}
+
+/* ── TABLE ───────────────────────────────────────────────────── */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);}
+table{width:100%;border-collapse:collapse;font-size:13px;background:var(--paper);}
+thead th{background:var(--card-alt);color:var(--muted);font-size:10px;font-family:var(--font-mono);letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:8px 12px;text-align:left;border-bottom:1.5px solid var(--line);white-space:nowrap;}
+tbody tr{border-bottom:1px solid var(--line);}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--accent-bg);}
+tbody tr.hidden-row{display:none;}
+tbody tr.hl{background:#FEF9C3;}
+td{padding:8px 12px;vertical-align:top;line-height:1.45;}
+td.sno{width:44px;color:var(--muted);font-size:11px;font-family:var(--font-mono);}
+td.caseno{font-family:var(--font-mono);font-size:11.5px;white-space:nowrap;color:var(--ink);}
+td.parties{font-weight:500;min-width:180px;}
+td.counsel{color:var(--muted);min-width:140px;}
+mark{background:#FDE68A;color:inherit;padding:0 1px;}
+
+/* ── FOOTER ──────────────────────────────────────────────────── */
+.site-footer{border-top:1px solid var(--line);padding:18px 24px;text-align:center;font-size:11.5px;color:var(--muted);}
+.site-footer a{color:var(--muted);text-decoration:none;}
+.site-footer a:hover{color:var(--accent);}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────── */
+@media(max-width:640px){
+  .oc-navlink{display:none;}
+  .app{padding:16px 12px 40px;}
+  td.counsel{display:none;}
+  header.top{flex-direction:column;align-items:flex-start;}
+  .header-right{align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── AUTH OVERLAY ─────────────────────────────────────────── -->
+<div id="auth-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--primary);align-items:center;justify-content:center;">
+  <div style="background:var(--paper);padding:40px 48px;max-width:380px;width:90%;text-align:center;">
+    <div style="margin-bottom:20px;">
+      <svg viewBox="0 0 100 100" width="40" height="40" style="display:inline-block;color:var(--primary)"><rect x="12" y="12" width="76" height="76" rx="17" fill="none" stroke="currentColor" stroke-width="7"/><circle cx="40" cy="50" r="11" fill="none" stroke="currentColor" stroke-width="6"/><path d="M68 41 A11 11 0 1 0 68 59" fill="none" stroke="#C39A52" stroke-width="6" stroke-linecap="round"/></svg>
+    </div>
+    <div style="font-size:11px;font-family:var(--font-mono);letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">OneCourt</div>
+    <div style="font-size:20px;font-weight:700;margin-bottom:6px;color:var(--ink);">NCLAT Cause List</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:28px;">Enter your access password to continue.</div>
+    <input type="password" id="auth-input" placeholder="Password"
+      style="width:100%;padding:11px 14px;border:1.5px solid var(--line);font-size:14px;font-family:var(--font-ui);margin-bottom:10px;outline:none;color:var(--ink);background:#fff;"
+      onkeydown="if(event.key==='Enter')checkAuth()">
+    <div id="auth-err" style="font-size:12px;color:var(--danger);min-height:18px;margin-bottom:10px;"></div>
+    <button onclick="checkAuth()"
+      style="width:100%;background:var(--primary);color:#fff;border:none;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-ui);">
+      Enter
+    </button>
+  </div>
+</div>
+
+<!-- ── SITE HEADER ───────────────────────────────────────────── -->
+<header class="site-header">
+  <div class="inner">
+    <div class="left">
+      <a class="oc-logo" href="https://onecourt.in">
+        <span class="mark"><svg viewBox="0 0 100 100" width="34" height="34"><rect x="12" y="12" width="76" height="76" rx="17" fill="none" stroke="currentColor" stroke-width="7"/><circle cx="40" cy="50" r="11" fill="none" stroke="currentColor" stroke-width="6"/><path d="M68 41 A11 11 0 1 0 68 59" fill="none" stroke="#C39A52" stroke-width="6" stroke-linecap="round"/></svg></span>
+        <span class="name">OneCourt</span>
+      </a>
+      <span class="tag">NCLAT Cause List</span>
+    </div>
+    <div class="right">
+      <nav class="oc-nav">
+        <a class="oc-navlink" href="https://onecourt.in/about-onecourt.html">Start Here</a>
+        <details class="oc-tools">
+          <summary>Tools for Lawyers <span class="car">▾</span></summary>
+          <div class="menu">
+            <a href="https://onecourt.in/Court_Holiday_Planner.html">Court Holiday Planner</a>
+            <a href="https://onecourt.in/vakalatnama-generator.html">Generate Vakalatnama</a>
+            <a href="/index.html">SLP Index Generator</a>
+            <a href="/affidavit-generator.html">SC Affidavit Generator</a>
+            <a href="/case-status.html">Case Status</a>
+            <a href="https://onecourt.in/bare-acts">Bare Acts</a>
+            <a class="current" href="/nclat">NCLAT Cause List</a>
+          </div>
+        </details>
+      </nav>
+      <a class="oc-contact" href="https://onecourt.in/Contact%20Us.html">Feedback | Contact Us</a>
+    </div>
+  </div>
+</header>
+
+<!-- ── PAGE ──────────────────────────────────────────────────── -->
+<div class="app">
+
+  <header class="top">
+    <div>
+      <div class="eyebrow">National Company Law Appellate Tribunal</div>
+      <h1>Daily <em>Cause List</em></h1>
+      <div class="desc">Searchable cause lists for all NCLAT benches. Auto-refreshed 4–8 PM IST daily.</div>
+    </div>
+    <div class="header-right">
+      <span class="last-scraped" id="last-scraped"></span>
+      <button class="btn-refresh" id="btn-refresh">↻ Refresh Now</button>
+    </div>
+  </header>
+
+  <!-- Date pills -->
+  <div class="date-row">
+    <span class="date-row-label">Date</span>
+    <div id="date-pills" style="display:flex;gap:8px;flex-wrap:nowrap;">
+      <span style="color:var(--muted);font-size:12px;">Loading…</span>
+    </div>
+  </div>
+
+  <!-- Court tabs + search + panels -->
+  <div class="tabs-wrap">
+
+    <div class="tabs-header" role="tablist">
+      {% for court in courts %}
+      <button class="tab-btn {% if loop.first %}active{% endif %}"
+        role="tab"
+        data-court="{{ court.key }}"
+        id="tab-{{ court.key }}"
+        aria-controls="panel-{{ court.key }}"
+        aria-selected="{{ 'true' if loop.first else 'false' }}">
+        <span class="tab-label">{{ court.label }}</span>
+        <span class="tab-city">{{ court.city }}</span>
+        <span class="tab-badge" id="badge-{{ court.key }}" hidden></span>
+      </button>
+      {% endfor %}
+    </div>
+
+    <div class="search-row">
+      <span class="search-icon">⌕</span>
+      <input class="search-input" id="search-input" type="search"
+        placeholder="Search by case no., party or counsel…"
+        autocomplete="off" spellcheck="false">
+      <span class="match-count" id="match-count" hidden></span>
+      <button class="btn-clear" id="btn-clear" hidden aria-label="Clear">✕</button>
+    </div>
+
+    {% for court in courts %}
+    <div class="tab-panel {% if loop.first %}active{% endif %}"
+      role="tabpanel"
+      id="panel-{{ court.key }}"
+      data-court="{{ court.key }}"
+      {% if not loop.first %}hidden{% endif %}>
+      <div class="panel-loading" id="loading-{{ court.key }}">
+        <div class="spinner"></div> Loading cause list…
+      </div>
+      <div id="content-{{ court.key }}" hidden></div>
+      <div class="panel-empty" id="empty-{{ court.key }}" hidden>
+        No cause list available for this court on the selected date.
+      </div>
+    </div>
+    {% endfor %}
+
+  </div>
+</div>
+
+<!-- ── FOOTER ─────────────────────────────────────────────────── -->
+<footer class="site-footer">
+  <span>© 2025 <a href="https://onecourt.in">OneCourt</a> · Data sourced from <a href="https://nclat.nic.in/daily-cause-list" target="_blank" rel="noreferrer">nclat.nic.in</a> · Built for Indian lawyers</span>
+</footer>
+
+<script>
+/* ── AUTH ────────────────────────────────────────────────────── */
+(function(){
+  const o=document.getElementById('auth-overlay');
+  if(sessionStorage.getItem('oc-slp-auth')==='1'){o.style.display='none';}
+  else{o.style.display='flex';}
+})();
+function checkAuth(){
+  const pwd=document.getElementById('auth-input').value;
+  if(pwd==='SLP@9kTm'){
+    sessionStorage.setItem('oc-slp-auth','1');
+    document.getElementById('auth-overlay').style.display='none';
+  } else {
+    document.getElementById('auth-err').textContent='Incorrect password. Try again.';
+    document.getElementById('auth-input').value='';
+    document.getElementById('auth-input').focus();
+  }
+}
+
+/* ── APP ─────────────────────────────────────────────────────── */
+'use strict';
+const COURTS = {{ courts | tojson }};
+
+const state = { date: null, court: null, cache: {}, search: '' };
+
+/* DOM */
+const $pills   = document.getElementById('date-pills');
+const $search  = document.getElementById('search-input');
+const $count   = document.getElementById('match-count');
+const $clear   = document.getElementById('btn-clear');
+const $refresh = document.getElementById('btn-refresh');
+const $scraped = document.getElementById('last-scraped');
+
+/* Helpers */
+function esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function hi(text,term){
+  if(!term) return esc(text);
+  const re=new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi');
+  return esc(text).replace(re,m=>`<mark>${m}</mark>`);
+}
+function fmt(iso){
+  const[y,m,d]=iso.split('-');
+  return new Date(+y,+m-1,+d).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+}
+function show(el){el.hidden=false;}
+function hide(el){el.hidden=true;}
+
+/* ── Date pills ─────────────────────────────────────────────── */
+async function loadDates(){
+  const {dates} = await fetch('/api/dates').then(r=>r.json());
+  $pills.innerHTML='';
+  if(!dates||!dates.length){
+    $pills.innerHTML='<span style="color:var(--muted);font-size:12px;">No dates yet — scrapes run 4–8 PM IST.</span>';
+    document.querySelectorAll('.panel-loading').forEach(hide);
+    document.querySelectorAll('.panel-empty').forEach(show);
+    return;
+  }
+  dates.forEach(({date,label})=>{
+    const b=document.createElement('button');
+    b.className='date-pill';
+    b.dataset.date=date;
+    b.textContent=label?`${label} (${fmt(date)})`:fmt(date);
+    b.addEventListener('click',()=>selectDate(date));
+    $pills.appendChild(b);
+  });
+  selectDate(dates[0].date);
+}
+
+function selectDate(date){
+  state.date=date;
+  document.querySelectorAll('.date-pill').forEach(p=>p.classList.toggle('active',p.dataset.date===date));
+  loadPanel(state.court);
+  prefetchBadges();
+}
+
+/* ── Tabs ───────────────────────────────────────────────────── */
+function initTabs(){
+  state.court = document.querySelector('.tab-btn.active')?.dataset.court ?? COURTS[0].key;
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      switchTab(btn.dataset.court);
+      loadPanel(btn.dataset.court);
+    });
+  });
+}
+
+function switchTab(key){
+  state.court=key;
+  document.querySelectorAll('.tab-btn').forEach(b=>{
+    const on=b.dataset.court===key;
+    b.classList.toggle('active',on);
+    b.setAttribute('aria-selected',on?'true':'false');
+  });
+  document.querySelectorAll('.tab-panel').forEach(p=>{
+    const on=p.dataset.court===key;
+    p.classList.toggle('active',on);
+    if(on) p.removeAttribute('hidden'); else p.setAttribute('hidden','');
+  });
+  applySearch();
+}
+
+/* ── Data loading ────────────────────────────────────────────── */
+async function loadPanel(court){
+  if(!state.date||!court) return;
+  const key=`${state.date}|${court}`;
+  if(state.cache[key]){ render(court,state.cache[key]); return; }
+
+  show(document.getElementById(`loading-${court}`));
+  hide(document.getElementById(`content-${court}`));
+  hide(document.getElementById(`empty-${court}`));
+
+  const data=await fetch(`/api/cause-list?date=${encodeURIComponent(state.date)}&court_key=${encodeURIComponent(court)}`).then(r=>r.json()).catch(()=>null);
+  state.cache[key]=data||{supplementary:[],main:[]};
+  render(court,state.cache[key]);
+}
+
+async function prefetchBadges(){
+  for(const c of COURTS){
+    if(c.key===state.court) continue;
+    const key=`${state.date}|${c.key}`;
+    if(state.cache[key]) continue;
+    const data=await fetch(`/api/cause-list?date=${encodeURIComponent(state.date)}&court_key=${encodeURIComponent(c.key)}`).then(r=>r.json()).catch(()=>null);
+    if(!data) continue;
+    state.cache[key]=data;
+    const total=(data.supplementary?.length??0)+(data.main?.length??0);
+    if(total){
+      const badge=document.getElementById(`badge-${c.key}`);
+      badge.textContent=total; show(badge);
+    }
+  }
+}
+
+/* ── Rendering ───────────────────────────────────────────────── */
+const KNOWN_COLS=[
+  {key:'sno',label:'S.No.',cls:'sno'},
+  {key:'case_no',label:'Case No.',cls:'caseno'},
+  {key:'parties',label:'Parties',cls:'parties'},
+  {key:'counsel_appellant',label:'Counsel (Appellant)',cls:'counsel'},
+  {key:'counsel_respondent',label:'Counsel (Respondent)',cls:'counsel'},
+  {key:'remarks',label:'Remarks',cls:'counsel'},
+  {key:'coram',label:'Coram',cls:'counsel'},
+];
+function cols(items){
+  const present=new Set(items.flatMap(r=>Object.keys(r)));
+  return KNOWN_COLS.filter(c=>present.has(c.key));
+}
+function buildTable(items,c,term){
+  if(!items.length) return '';
+  const hd=c.map(col=>`<th>${esc(col.label)}</th>`).join('');
+  const rows=items.map(item=>{
+    const cells=c.map(col=>`<td class="${col.cls}">${hi(item[col.key]??'',term)}</td>`).join('');
+    return `<tr data-search="${esc(JSON.stringify(item)).toLowerCase()}">${cells}</tr>`;
+  }).join('');
+  return `<div class="tbl-wrap"><table><thead><tr>${hd}</tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function render(court,data){
+  hide(document.getElementById(`loading-${court}`));
+  const {supplementary=[],main=[],pdf_urls={}}=data;
+  if(!supplementary.length&&!main.length){
+    show(document.getElementById(`empty-${court}`)); return;
+  }
+  const term=state.search;
+  let html='';
+
+  if(supplementary.length){
+    const pdfA=pdf_urls.supplementary?`<a class="pdf-link" href="${esc(pdf_urls.supplementary)}" target="_blank" rel="noreferrer">PDF ↗</a>`:'';
+    html+=`<div class="list-section supplementary">
+      <div class="section-hd">
+        <span class="section-title">★ Supplementary List <span class="section-badge">${supplementary.length} items</span></span>
+        ${pdfA}
+      </div>${buildTable(supplementary,cols(supplementary),term)}</div>`;
+  }
+  if(main.length){
+    const pdfA=pdf_urls.main?`<a class="pdf-link" href="${esc(pdf_urls.main)}" target="_blank" rel="noreferrer">PDF ↗</a>`:'';
+    html+=`<div class="list-section">
+      <div class="section-hd">
+        <span class="section-title">Daily Cause List <span class="section-badge">${main.length} items</span></span>
+        ${pdfA}
+      </div>${buildTable(main,cols(main),term)}</div>`;
+  }
+
+  const el=document.getElementById(`content-${court}`);
+  el.innerHTML=html; show(el);
+  hide(document.getElementById(`empty-${court}`));
+
+  const total=supplementary.length+main.length;
+  const badge=document.getElementById(`badge-${court}`);
+  if(total){ badge.textContent=total; show(badge); }
+
+  applySearch();
+}
+
+/* ── Search ──────────────────────────────────────────────────── */
+function applySearch(){
+  const term=state.search.trim().toLowerCase();
+  const panel=document.querySelector('.tab-panel.active');
+  if(!panel) return;
+  const rows=panel.querySelectorAll('tbody tr');
+  let vis=0;
+  rows.forEach(tr=>{
+    const match=!term||(tr.dataset.search??tr.textContent.toLowerCase()).includes(term);
+    tr.classList.toggle('hidden-row',!match);
+    tr.classList.toggle('hl',!!(term&&match));
+    if(match) vis++;
+  });
+  if(term&&rows.length){ $count.textContent=`${vis} of ${rows.length}`; show($count); } else hide($count);
+  term?show($clear):hide($clear);
+  /* re-highlight cell text */
+  if(term){
+    panel.querySelectorAll('td').forEach(td=>{
+      const raw=td.dataset.raw??td.textContent;
+      td.dataset.raw=raw; td.innerHTML=hi(raw,term);
+    });
+  } else {
+    panel.querySelectorAll('td[data-raw]').forEach(td=>{
+      td.innerHTML=esc(td.dataset.raw); delete td.dataset.raw;
+    });
+  }
+}
+$search.addEventListener('input',()=>{ state.search=$search.value; applySearch(); });
+$clear.addEventListener('click',()=>{ $search.value=''; state.search=''; applySearch(); $search.focus(); });
+
+/* ── Refresh button ──────────────────────────────────────────── */
+$refresh.addEventListener('click',async()=>{
+  if($refresh.classList.contains('loading')) return;
+  $refresh.classList.add('loading'); $refresh.textContent='↻ Scraping…';
+  try{
+    const d=await fetch('/api/scrape',{method:'POST'}).then(r=>r.json());
+    if(d.error){ alert('Scrape error: '+d.error); } else { state.cache={}; await loadDates(); }
+  } catch{ alert('Request failed.'); }
+  finally{ $refresh.classList.remove('loading'); $refresh.textContent='↻ Refresh Now'; }
+});
+
+/* ── Status ──────────────────────────────────────────────────── */
+async function loadStatus(){
+  const {last_scrape}=await fetch('/api/status').then(r=>r.json()).catch(()=>({}));
+  if(last_scrape?.finished_at){
+    const d=new Date(last_scrape.finished_at+'Z');
+    $scraped.textContent='Last scraped: '+d.toLocaleTimeString('en-IN');
+  }
+}
+
+/* ── Boot ────────────────────────────────────────────────────── */
+initTabs();
+loadDates();
+loadStatus();
+</script>
+</body>
+</html>
