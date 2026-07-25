@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Status — Supreme Court of India | OneCourt</title>
+<style>
+:root{
+  --ink:#1A2027; --paper:#F7F8FA; --panel:#F1F3F6; --card-alt:#EEF0F3;
+  --line:#E4E7EC; --primary:#1E2733; --on-primary:#EBF0F6; --nav-dim:#9AA7B8;
+  --accent:#2563EB; --accent-dark:#1D4ED8; --accent-bg:#EAF1FD;
+  --gold:#C39A52; --muted:#5A6472; --faint:#98A1AD;
+  --ok:#1F8A5F; --ok-bg:#ECFDF5; --danger:#DC2626; --danger-bg:#FEF2F2; --warn:#B45309; --warn-bg:#FEF3C7;
+  --font-ui:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',Helvetica,Arial,sans-serif;
+  --font-mono:Helvetica,Arial,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{margin:0;padding:0;}
+body{font-family:var(--font-ui);background:var(--panel);color:var(--ink);font-size:13.5px;line-height:1.55;min-height:100vh;}
+::selection{background:#cfe0ff;color:#1A2027;}
+
+/* SITE HEADER */
+.site-header{background:var(--primary);color:var(--on-primary);position:sticky;top:0;z-index:40;}
+.site-header .inner{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px;padding:0 24px;}
+.site-header .left{display:flex;align-items:center;gap:12px;}
+.oc-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;}
+.oc-logo:hover{opacity:.85;}
+.oc-logo .mark{width:34px;height:34px;color:var(--on-primary);display:flex;align-items:center;justify-content:center;}
+.oc-logo .name{font-size:20px;font-weight:700;letter-spacing:-.01em;}
+.site-header .tag{font-size:11px;color:var(--nav-dim);border-left:1px solid rgba(255,255,255,.16);padding-left:12px;margin-left:4px;letter-spacing:.08em;text-transform:uppercase;font-family:var(--font-mono);}
+.site-header .right{display:flex;align-items:center;gap:20px;}
+.oc-nav{display:flex;align-items:center;gap:20px;font-size:13.5px;}
+.oc-nav a.oc-navlink{color:rgba(255,255,255,.72);text-decoration:none;white-space:nowrap;}
+.oc-nav a.oc-navlink:hover{color:#fff;}
+details.oc-tools{position:relative;}
+details.oc-tools>summary{list-style:none;outline:none;cursor:pointer;color:rgba(255,255,255,.72);display:inline-flex;align-items:center;gap:6px;white-space:nowrap;font-size:13.5px;}
+details.oc-tools>summary:hover{color:#fff;}
+details.oc-tools>summary::-webkit-details-marker{display:none;}
+details.oc-tools>summary .car{font-family:var(--font-mono);font-size:10px;}
+details.oc-tools[open]>summary .car{display:inline-block;transform:rotate(180deg);}
+details.oc-tools .menu{position:absolute;top:calc(100% + 14px);right:0;min-width:240px;background:#fff;border:1px solid rgba(0,0,0,.1);box-shadow:0 12px 34px rgba(0,0,0,.2);padding:6px;z-index:60;}
+details.oc-tools .menu a{display:block;padding:10px 12px;text-decoration:none;color:#1b2530;font-size:13.5px;}
+details.oc-tools .menu a:hover{background:rgba(0,0,0,.05);}
+details.oc-tools .menu a.current{font-weight:600;background:rgba(0,0,0,.05);}
+.oc-contact{display:inline-flex;align-items:center;text-decoration:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;padding:8px 16px;border:1.5px solid var(--accent);white-space:nowrap;}
+.oc-contact:hover{background:var(--accent-dark);border-color:var(--accent-dark);}
+
+/* APP SHELL */
+.app{max-width:1180px;margin:0 auto;padding:36px 24px 64px;}
+header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;border-bottom:2px solid var(--ink);padding-bottom:16px;margin-bottom:28px;}
+header.top .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:8px;}
+header.top h1{font-size:34px;margin:0;font-weight:500;letter-spacing:-.015em;line-height:1.05;}
+header.top h1 em{font-style:normal;color:var(--accent);}
+header.top .desc{font-size:13px;color:var(--muted);margin-top:8px;max-width:480px;line-height:1.6;}
+
+/* LAYOUT */
+.two-col{display:grid;grid-template-columns:380px 1fr;gap:24px;align-items:start;}
+@media(max-width:900px){.two-col{grid-template-columns:1fr;}}
+
+/* CARDS */
+.card{background:var(--paper);border:1px solid var(--line);margin-bottom:16px;}
+.ch{padding:10px 16px;background:var(--card-alt);border-bottom:1px solid var(--line);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;justify-content:space-between;font-family:var(--font-mono);}
+.cb{padding:18px 16px;display:flex;flex-direction:column;gap:12px;}
+
+/* FIELDS */
+.field{display:flex;flex-direction:column;gap:5px;}
+label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;}
+input[type="text"],input[type="number"],select{width:100%;font-family:var(--font-ui);font-size:13.5px;padding:9px 11px;border:1.5px solid var(--line);background:#fff;color:var(--ink);outline:none;appearance:none;-webkit-appearance:none;}
+input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235A6472' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;}
+
+/* BUTTONS */
+.btn-gen{width:100%;background:var(--accent);color:#fff;border:1.5px solid var(--accent);padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-ui);letter-spacing:.03em;}
+.btn-gen:hover:not(:disabled){background:var(--accent-dark);border-color:var(--accent-dark);}
+.btn-gen:disabled{opacity:.55;cursor:not-allowed;}
+.btn-sm{background:none;border:1.5px solid var(--line);padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-ui);color:var(--muted);display:inline-flex;align-items:center;gap:5px;}
+.btn-sm:hover{border-color:var(--ink);color:var(--ink);}
+
+/* CAPTCHA AREA */
+.captcha-wrap{display:flex;align-items:center;gap:10px;min-height:60px;}
+.captcha-img-box{border:1.5px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;min-width:160px;min-height:56px;flex:0 0 auto;}
+.captcha-img-box img{display:block;max-height:60px;}
+.captcha-skeleton{width:160px;height:56px;background:linear-gradient(90deg,var(--card-alt) 25%,var(--panel) 50%,var(--card-alt) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+.captcha-status{font-size:12px;color:var(--muted);padding:4px 0;}
+.captcha-status.err{color:var(--danger);}
+
+/* RESULTS PANEL */
+.out-card{background:var(--paper);border:1px solid var(--line);position:sticky;top:76px;}
+.out-tb{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--card-alt);border-bottom:1px solid var(--line);}
+.out-tb-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-family:var(--font-mono);}
+.placeholder{padding:60px 24px;text-align:center;color:var(--faint);}
+.placeholder svg{display:block;margin:0 auto 14px;opacity:.3;}
+.placeholder p{font-size:12.5px;max-width:200px;margin:0 auto;line-height:1.6;}
+#resultsBody{padding:0;}
+
+/* SCI result HTML normalisation */
+#sciResults{padding:16px;overflow-x:auto;}
+#sciResults table{width:100%;border-collapse:collapse;font-size:13px;font-family:var(--font-ui);}
+#sciResults th{background:var(--card-alt);color:var(--muted);font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:9px 12px;text-align:left;border-bottom:2px solid var(--line);}
+#sciResults td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5;}
+#sciResults tr:last-child td{border-bottom:none;}
+#sciResults tr:hover td{background:var(--accent-bg);}
+#sciResults a{color:var(--accent);text-decoration:none;}
+#sciResults a:hover{text-decoration:underline;}
+#sciResults .notfound{padding:32px;text-align:center;color:var(--muted);font-size:13px;}
+#sciResults .distTableContent{margin-bottom:20px;}
+
+/* Status badges */
+.badge-ok{display:inline-block;background:var(--ok-bg);color:var(--ok);font-size:10.5px;font-weight:700;padding:2px 8px;letter-spacing:.05em;text-transform:uppercase;}
+.badge-err{display:inline-block;background:var(--danger-bg);color:var(--danger);font-size:10.5px;font-weight:700;padding:2px 8px;letter-spacing:.05em;}
+
+/* Loading state in results */
+.res-loading{padding:40px 24px;display:flex;align-items:center;justify-content:center;gap:12px;color:var(--muted);font-size:13px;}
+.spinner{width:20px;height:20px;border:2.5px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Not-configured banner */
+.config-banner{margin-bottom:16px;padding:14px 16px;background:var(--warn-bg);border:1px solid #fcd34d;font-size:12.5px;color:var(--warn);line-height:1.6;display:none;}
+.config-banner code{background:rgba(0,0,0,.07);padding:1px 5px;font-family:var(--font-mono);font-size:12px;}
+
+@media(max-width:640px){.oc-navlink{display:none;}}
+</style>
+</head>
+<body>
+
+<!-- AUTH OVERLAY -->
+<div id="auth-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--primary);align-items:center;justify-content:center;">
+  <div style="background:var(--paper);padding:40px 48px;max-width:380px;width:90%;text-align:center;">
+    <div style="margin-bottom:20px;">
+      <svg viewBox="0 0 100 100" width="40" height="40" style="display:inline-block;color:var(--primary)"><rect x="12" y="12" width="76" height="76" rx="17" fill="none" stroke="currentColor" stroke-width="7"/><circle cx="40" cy="50" r="11" fill="none" stroke="currentColor" stroke-width="6"/><path d="M68 41 A11 11 0 1 0 68 59" fill="none" stroke="#C39A52" stroke-width="6" stroke-linecap="round"/></svg>
+    </div>
+    <div style="font-size:11px;font-family:var(--font-mono);letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">OneCourt</div>
+    <div style="font-size:20px;font-weight:700;margin-bottom:6px;color:var(--ink);">Case Status</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:28px;">Enter your access password to continue.</div>
+    <input type="password" id="auth-input" placeholder="Password"
+      style="width:100%;padding:11px 14px;border:1.5px solid var(--line);font-size:14px;font-family:var(--font-ui);margin-bottom:10px;outline:none;color:var(--ink);background:#fff;"
+      onkeydown="if(event.key==='Enter')checkAuth()">
+    <div id="auth-err" style="font-size:12px;color:var(--danger);min-height:18px;margin-bottom:10px;"></div>
+    <button onclick="checkAuth()"
+      style="width:100%;background:var(--primary);color:#fff;border:none;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-ui);">
+      Enter
+    </button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="inner">
+    <div class="left">
+      <a class="oc-logo" href="https://onecourt.in">
+        <span class="mark"><svg viewBox="0 0 100 100" width="34" height="34"><rect x="12" y="12" width="76" height="76" rx="17" fill="none" stroke="currentColor" stroke-width="7"/><circle cx="40" cy="50" r="11" fill="none" stroke="currentColor" stroke-width="6"/><path d="M68 41 A11 11 0 1 0 68 59" fill="none" stroke="#C39A52" stroke-width="6" stroke-linecap="round"/></svg></span>
+        <span class="name">OneCourt</span>
+      </a>
+      <span class="tag">Case Status</span>
+    </div>
+    <div class="right">
+      <nav class="oc-nav">
+        <a class="oc-navlink" href="https://onecourt.in/about-onecourt.html">Start Here</a>
+        <details class="oc-tools">
+          <summary>Tools for Lawyers <span class="car">▾</span></summary>
+          <div class="menu">
+            <a href="https://onecourt.in/Court_Holiday_Planner.html">Court Holiday Planner</a>
+            <a href="https://onecourt.in/vakalatnama-generator.html">Generate Vakalatnama</a>
+            <a href="/index.html">SLP Index Generator</a>
+            <a href="/affidavit-generator.html">SC Affidavit Generator</a>
+            <a class="current" href="/case-status.html">Case Status</a>
+            <a href="https://onecourt.in/bare-acts">Bare Acts</a>
+            <a href="/nclat">NCLAT Cause List</a>
+          </div>
+        </details>
+      </nav>
+      <a class="oc-contact" href="https://onecourt.in/Contact%20Us.html">Feedback | Contact Us</a>
+    </div>
+  </div>
+</header>
+
+<!-- APP -->
+<div class="app">
+
+  <header class="top">
+    <div>
+      <div class="eyebrow">SC Services</div>
+      <h1>Case <em>Status</em></h1>
+      <p class="desc">Look up live case status from the Supreme Court of India registry by case number.</p>
+    </div>
+  </header>
+
+  <!-- Not-configured warning (hidden when WORKER_URL is set) -->
+  <div class="config-banner" id="configBanner">
+    <strong>Setup required:</strong> Deploy <code>worker.js</code> to Cloudflare Workers, then replace <code>WORKER_URL</code> at the top of this page's <code>&lt;script&gt;</code> with your Worker's URL.
+  </div>
+
+  <div class="two-col">
+
+    <!-- LEFT: Form -->
+    <div>
+      <div class="card">
+        <div class="ch">Case Details</div>
+        <div class="cb">
+
+          <div class="field">
+            <label>Case Type</label>
+            <select id="caseType">
+              <option value="">— Select —</option>
+              <option value="1">Special Leave Petition (Civil)</option>
+              <option value="2">Special Leave Petition (Criminal)</option>
+              <option value="3">Civil Appeal</option>
+              <option value="4">Criminal Appeal</option>
+              <option value="5">Writ Petition (Civil)</option>
+              <option value="6">Writ Petition (Criminal)</option>
+              <option value="7">Transfer Petition (Civil)</option>
+              <option value="8">Transfer Petition (Criminal)</option>
+              <option value="9">Review Petition (Civil)</option>
+              <option value="10">Review Petition (Criminal)</option>
+              <option value="11">Transferred Case (Civil)</option>
+              <option value="12">Transferred Case (Criminal)</option>
+              <option value="13">SLP (Civil) — Disposed</option>
+              <option value="14">SLP (Criminal) — Disposed</option>
+              <option value="15">Writ Petition (Civil) — Disposed</option>
+              <option value="16">Writ Petition (Criminal) — Disposed</option>
+              <option value="17">Original Suit</option>
+              <option value="18">Death Reference Case</option>
+              <option value="19">Contempt Petition (Civil)</option>
+              <option value="20">Contempt Petition (Criminal)</option>
+              <option value="21">Tax Reference Case</option>
+              <option value="22">Special Reference Case</option>
+              <option value="23">Election Petition (Civil)</option>
+              <option value="24">Arbitration Petition</option>
+              <option value="25">Curative Petition (Civil)</option>
+              <option value="26">Curative Petition (Criminal)</option>
+              <option value="27">Ref. U/A 317(1)</option>
+              <option value="28">Motion (Criminal)</option>
+              <option value="31">Diary No. &amp; Year</option>
+              <option value="32">Suo Moto Writ Petition (Civil)</option>
+              <option value="33">Suo Moto Writ Petition (Criminal)</option>
+              <option value="34">Suo Moto Contempt Petition (Civil)</option>
+              <option value="35">Suo Moto Contempt Petition (Criminal)</option>
+              <option value="37">Ref. U/S 14 RTI</option>
+              <option value="38">Ref. U/S 17 RTI</option>
+              <option value="39">Miscellaneous Application</option>
+              <option value="40">Suo Moto Transfer Petition (Civil)</option>
+              <option value="41">Suo Moto Transfer Petition (Criminal)</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Case Number</label>
+            <input type="number" id="caseNo" placeholder="e.g. 12345" min="1" style="width:100%;">
+          </div>
+
+          <div class="field">
+            <label>Case Year</label>
+            <select id="caseYear" style="width:100%;"></select>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ch">
+          <span>CAPTCHA Verification</span>
+          <button class="btn-sm" id="refreshBtn" onclick="refreshCaptcha()" title="Get a new CAPTCHA">↻ Refresh</button>
+        </div>
+        <div class="cb">
+          <div class="captcha-wrap">
+            <div class="captcha-img-box" id="captchaImgBox">
+              <div class="captcha-skeleton" id="captchaSkeleton"></div>
+              <img id="captchaImg" src="" alt="CAPTCHA" style="display:none;max-height:60px;">
+            </div>
+          </div>
+          <div class="captcha-status" id="captchaStatus">Loading CAPTCHA…</div>
+
+          <div class="field">
+            <label>Enter Text Shown Above</label>
+            <input type="text" id="captchaInput" placeholder="Type the characters" autocomplete="off" autocorrect="off" spellcheck="false"
+              onkeydown="if(event.key==='Enter')doSearch()">
+          </div>
+
+          <button class="btn-gen" id="searchBtn" onclick="doSearch()" disabled>Search Case</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Results -->
+    <div>
+      <div class="out-card">
+        <div class="out-tb">
+          <span class="out-tb-title">Results</span>
+          <span id="resultsBadge"></span>
+        </div>
+        <div id="resultsBody">
+          <div class="placeholder" id="placeholderEl">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none"><rect x="4" y="4" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/><path d="M11 18h14M11 13h9M11 23h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <p>Enter case details and solve the CAPTCHA, then click Search.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /two-col -->
+
+</div><!-- /app -->
+
+<footer style="background:var(--primary);color:rgba(255,255,255,.5);padding:20px 24px;font-size:12px;display:flex;align-items:center;justify-content:space-between;">
+  <span>© 2025 <a href="https://onecourt.in" style="color:inherit;">OneCourt</a> · Built for Indian lawyers</span>
+  <span style="font-family:var(--font-mono)">Case Status · via SCI</span>
+</footer>
+
+<script>
+// ── CONFIG — replace this with your deployed Worker URL ──────────────────────
+const WORKER_URL = 'https://YOUR-WORKER.workers.dev';
+// ─────────────────────────────────────────────────────────────────────────────
+
+const isConfigured = !WORKER_URL.includes('YOUR-WORKER');
+
+// ── AUTH ─────────────────────────────────────────────────────────────────────
+(function(){
+  const overlay = document.getElementById('auth-overlay');
+  if (sessionStorage.getItem('oc-slp-auth') === '1') {
+    overlay.style.display = 'none';
+    onAuthenticated();
+  } else {
+    overlay.style.display = 'flex';
+  }
+})();
+
+function checkAuth() {
+  const pwd = document.getElementById('auth-input').value;
+  if (pwd === 'SLP@9kTm') {
+    sessionStorage.setItem('oc-slp-auth', '1');
+    document.getElementById('auth-overlay').style.display = 'none';
+    onAuthenticated();
+  } else {
+    document.getElementById('auth-err').textContent = 'Incorrect password. Try again.';
+    document.getElementById('auth-input').value = '';
+    document.getElementById('auth-input').focus();
+  }
+}
+
+function onAuthenticated() {
+  populateYears();
+  if (!isConfigured) {
+    document.getElementById('configBanner').style.display = 'block';
+    setCaptchaStatus('Worker URL not configured — see banner above.', true);
+    return;
+  }
+  initSession();
+}
+
+// ── YEAR DROPDOWN ─────────────────────────────────────────────────────────────
+function populateYears() {
+  const sel = document.getElementById('caseYear');
+  const now = new Date().getFullYear();
+  for (let y = now; y >= 1951; y--) {
+    const opt = document.createElement('option');
+    opt.value = y;
+    opt.textContent = y;
+    if (y === now) opt.selected = true;
+    sel.appendChild(opt);
+  }
+}
+
+// ── SESSION STATE ─────────────────────────────────────────────────────────────
+let session = { token: null, scid: null, hiddenFields: {}, captchaObjectUrl: null };
+
+async function initSession() {
+  setCaptchaReady(false);
+  setCaptchaStatus('Loading CAPTCHA…');
+  showCaptchaLoading(true);
+
+  try {
+    const res = await fetch(`${WORKER_URL}/api/sci/init`);
+    if (!res.ok) throw new Error(`Worker returned ${res.status}`);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    session.token        = data.token;
+    session.scid         = data.scid;
+    session.hiddenFields = data.hiddenFields;
+
+    await fetchCaptchaImage();
+    setCaptchaReady(true);
+    setCaptchaStatus('');
+    document.getElementById('captchaInput').focus();
+  } catch (e) {
+    showCaptchaLoading(false);
+    setCaptchaStatus('Failed to load CAPTCHA: ' + e.message, true);
+  }
+}
+
+async function fetchCaptchaImage() {
+  const res = await fetch(`${WORKER_URL}/api/sci/captcha-img`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ token: session.token, scid: session.scid }),
+  });
+  if (!res.ok) throw new Error(`CAPTCHA image fetch failed (${res.status})`);
+
+  const blob = await res.blob();
+
+  // Revoke previous blob URL to free memory
+  if (session.captchaObjectUrl) URL.revokeObjectURL(session.captchaObjectUrl);
+  session.captchaObjectUrl = URL.createObjectURL(blob);
+
+  const img = document.getElementById('captchaImg');
+  img.src = session.captchaObjectUrl;
+  showCaptchaLoading(false);
+}
+
+function refreshCaptcha() {
+  document.getElementById('captchaInput').value = '';
+  session = { token: null, scid: null, hiddenFields: {}, captchaObjectUrl: null };
+  initSession();
+}
+
+// ── SEARCH ────────────────────────────────────────────────────────────────────
+async function doSearch() {
+  const caseType     = document.getElementById('caseType').value;
+  const caseNo       = document.getElementById('caseNo').value.trim();
+  const year         = document.getElementById('caseYear').value;
+  const captchaInput = document.getElementById('captchaInput').value.trim();
+
+  if (!caseType)     { flashError('Please select a case type.'); return; }
+  if (!caseNo)       { flashError('Please enter a case number.'); return; }
+  if (!captchaInput) { flashError('Please enter the CAPTCHA text.'); return; }
+  if (!session.token){ flashError('CAPTCHA session expired — please refresh.'); return; }
+
+  setResultsLoading();
+  setCaptchaReady(false);
+
+  try {
+    const res = await fetch(`${WORKER_URL}/api/sci/search`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({
+        token:         session.token,
+        hiddenFields:  session.hiddenFields,
+        caseType, caseNo, year,
+        captchaAnswer: captchaInput,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      const html = (data.data && data.data.resultsHtml) ? data.data.resultsHtml : data.data;
+      displayResults(html);
+    } else {
+      let msg = 'No records found.';
+      try {
+        const errObj = typeof data.data === 'string' ? JSON.parse(data.data) : data.data;
+        if (errObj && errObj.message) msg = errObj.message;
+      } catch(_) {}
+      displayError(msg);
+    }
+  } catch (e) {
+    displayError('Request failed: ' + e.message);
+  }
+
+  // Always refresh CAPTCHA after a search attempt
+  session.token = null;
+  document.getElementById('captchaInput').value = '';
+  initSession();
+}
+
+// ── UI HELPERS ────────────────────────────────────────────────────────────────
+function setCaptchaReady(ready) {
+  document.getElementById('searchBtn').disabled = !ready;
+}
+
+function showCaptchaLoading(loading) {
+  document.getElementById('captchaSkeleton').style.display = loading ? 'block' : 'none';
+  document.getElementById('captchaImg').style.display      = loading ? 'none'  : 'block';
+}
+
+function setCaptchaStatus(msg, isErr = false) {
+  const el = document.getElementById('captchaStatus');
+  el.textContent  = msg;
+  el.className    = 'captcha-status' + (isErr ? ' err' : '');
+}
+
+function flashError(msg) {
+  setCaptchaStatus(msg, true);
+  setTimeout(() => { if (!msg.includes('expired')) setCaptchaStatus(''); }, 3000);
+}
+
+function setResultsLoading() {
+  document.getElementById('placeholderEl')  && (document.getElementById('placeholderEl').style.display = 'none');
+  document.getElementById('resultsBody').innerHTML =
+    `<div class="res-loading"><div class="spinner"></div>Querying SCI registry…</div>`;
+  document.getElementById('resultsBadge').innerHTML = '';
+}
+
+function displayResults(html) {
+  document.getElementById('resultsBody').innerHTML = `<div id="sciResults">${html}</div>`;
+  document.getElementById('resultsBadge').innerHTML = `<span class="badge-ok">Found</span>`;
+  // Scroll results into view on mobile
+  if (window.innerWidth < 900) {
+    document.getElementById('resultsBody').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function displayError(msg) {
+  document.getElementById('resultsBody').innerHTML =
+    `<div class="placeholder"><p style="color:var(--danger)">${escHtml(msg)}</p></div>`;
+  document.getElementById('resultsBadge').innerHTML = `<span class="badge-err">Not found</span>`;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>

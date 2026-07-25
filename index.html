@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SLP Index Generator — Supreme Court of India</title>
+<style>
+:root{
+  --ink:#1A2027; --paper:#F7F8FA; --panel:#F1F3F6; --card-alt:#EEF0F3;
+  --line:#E4E7EC; --primary:#1E2733; --on-primary:#EBF0F6; --nav-dim:#9AA7B8;
+  --accent:#2563EB; --accent-dark:#1D4ED8; --accent-bg:#EAF1FD;
+  --gold:#C39A52; --muted:#5A6472; --faint:#98A1AD;
+  --ok:#1F8A5F; --danger:#DC2626; --warn:#B45309; --warn-bg:#FEF3C7;
+  --font-ui:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',Helvetica,Arial,sans-serif;
+  --font-mono:Helvetica,Arial,sans-serif;
+  --font-doc:'Times New Roman',Times,serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{margin:0;padding:0;}
+body{font-family:var(--font-ui);background:var(--panel);color:var(--ink);font-size:13.5px;line-height:1.55;min-height:100vh;}
+::selection{background:#cfe0ff;color:#1A2027;}
+
+/* ── SITE HEADER ─────────────────────────────────────────────── */
+.site-header{background:var(--primary);color:var(--on-primary);position:sticky;top:0;z-index:40;}
+.site-header .inner{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px;padding:0 24px;}
+.site-header .left{display:flex;align-items:center;gap:12px;}
+.oc-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;}
+.oc-logo:hover{opacity:.85;}
+.oc-logo .mark{width:34px;height:34px;color:var(--on-primary);display:flex;align-items:center;justify-content:center;}
+.oc-logo .name{font-size:20px;font-weight:700;letter-spacing:-.01em;}
+.site-header .tag{font-size:11px;color:var(--nav-dim);border-left:1px solid rgba(255,255,255,.16);padding-left:12px;margin-left:4px;letter-spacing:.08em;text-transform:uppercase;font-family:var(--font-mono);}
+.site-header .right{display:flex;align-items:center;gap:20px;}
+.oc-nav{display:flex;align-items:center;gap:20px;font-size:13.5px;}
+.oc-nav a.oc-navlink{color:rgba(255,255,255,.72);text-decoration:none;white-space:nowrap;}
+.oc-nav a.oc-navlink:hover{color:#fff;}
+details.oc-tools{position:relative;}
+details.oc-tools>summary{list-style:none;outline:none;cursor:pointer;color:rgba(255,255,255,.72);display:inline-flex;align-items:center;gap:6px;white-space:nowrap;font-size:13.5px;}
+details.oc-tools>summary:hover{color:#fff;}
+details.oc-tools>summary::-webkit-details-marker{display:none;}
+details.oc-tools>summary .car{font-family:var(--font-mono);font-size:10px;}
+details.oc-tools[open]>summary .car{display:inline-block;transform:rotate(180deg);}
+details.oc-tools .menu{position:absolute;top:calc(100% + 14px);right:0;min-width:240px;background:#fff;border:1px solid rgba(0,0,0,.1);box-shadow:0 12px 34px rgba(0,0,0,.2);padding:6px;z-index:60;}
+details.oc-tools .menu a{display:block;padding:10px 12px;text-decoration:none;color:#1b2530;font-size:13.5px;}
+details.oc-tools .menu a:hover{background:rgba(0,0,0,.05);}
+details.oc-tools .menu a.current{font-weight:600;background:rgba(0,0,0,.05);}
+.oc-contact{display:inline-flex;align-items:center;text-decoration:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;padding:8px 16px;border:1.5px solid var(--accent);white-space:nowrap;}
+.oc-contact:hover{background:var(--accent-dark);border-color:var(--accent-dark);}
+
+/* ── APP SHELL ──────────────────────────────────────────────── */
+.app{max-width:1180px;margin:0 auto;padding:36px 24px 64px;}
+header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;border-bottom:2px solid var(--ink);padding-bottom:16px;margin-bottom:28px;}
+header.top .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:8px;}
+header.top h1{font-size:34px;margin:0;font-weight:500;letter-spacing:-.015em;line-height:1.05;}
+header.top h1 em{font-style:normal;color:var(--accent);}
+
+/* ── BAND LAYOUT ─────────────────────────────────────────────── */
+.band{width:100%;margin-bottom:20px;}
+
+/* Choice band */
+.choice-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.choice-btn{border:1.5px solid var(--line);background:var(--paper);padding:24px 28px;cursor:pointer;text-align:left;font-family:var(--font-ui);color:var(--ink);width:100%;transition:border-color .15s,background .15s;}
+.choice-btn:hover{border-color:var(--accent);background:var(--accent-bg);}
+.choice-btn.choice-primary{background:var(--primary);color:#fff;border-color:var(--primary);}
+.choice-btn.choice-primary:hover{background:#2a3749;border-color:#2a3749;}
+.choice-icon{font-size:20px;margin-bottom:10px;line-height:1;}
+.choice-title{font-size:14.5px;font-weight:700;margin-bottom:5px;letter-spacing:-.01em;}
+.choice-desc{font-size:12px;line-height:1.5;opacity:.7;}
+.choice-btn.choice-primary .choice-desc{opacity:.75;}
+
+/* Edit band */
+.edit-fields{display:flex;flex-direction:column;gap:14px;}
+.edit-summary{display:none;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;background:var(--card-alt);border:1.5px solid var(--line);margin-bottom:14px;font-size:12.5px;color:var(--muted);}
+.edit-summary-link{color:var(--accent);cursor:pointer;font-size:12.5px;background:none;border:none;font-family:var(--font-ui);font-weight:600;padding:0;text-decoration:underline;white-space:nowrap;}
+
+/* Index band */
+.index-actions{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:14px 16px;background:var(--card-alt);border:1.5px solid var(--line);margin-top:16px;}
+.index-actions-label{font-size:13px;font-weight:700;color:var(--ok);display:flex;align-items:center;gap:7px;}
+.index-actions-btns{display:flex;gap:8px;}
+
+@media(max-width:640px){.choice-cards{grid-template-columns:1fr;}}
+
+/* ── PANELS ─────────────────────────────────────────────────── */
+.card{background:var(--paper);border:1px solid var(--line);}
+.ch{padding:10px 16px;background:var(--card-alt);border-bottom:1px solid var(--line);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;justify-content:space-between;font-family:var(--font-mono);}
+.cb{padding:18px 16px;display:flex;flex-direction:column;gap:12px;}
+
+/* ── FIELDS ─────────────────────────────────────────────────── */
+.field{display:flex;flex-direction:column;gap:4px;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;}
+.hint{font-size:12px;color:var(--muted);line-height:1.5;}
+input[type="text"],select,textarea{width:100%;font-family:var(--font-ui);font-size:13.5px;padding:9px 11px;border:1.5px solid var(--line);background:#fff;color:var(--ink);outline:none;}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+textarea{resize:vertical;min-height:200px;line-height:1.5;font-size:12px;}
+select:disabled{opacity:.5;cursor:default;}
+
+.pf{display:flex;flex-direction:column;gap:4px;}
+.pf label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);}
+.pf input,.pf select{font-size:12.5px;padding:7px 9px;}
+
+/* ── FORUM WIDGET ───────────────────────────────────────────── */
+.forum-row{display:grid;grid-template-columns:1fr 148px;gap:7px;align-items:start;}
+.forum-bench-wrap{display:flex;flex-direction:column;gap:4px;}
+.forum-bench-wrap label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);}
+.forum-custom-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:7px;}
+
+/* ── BADGES ─────────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;font-size:9.5px;font-weight:700;letter-spacing:.04em;padding:2px 7px;}
+.badge-ok{background:#E6F4EC;color:var(--ok);}
+.badge-warn{background:var(--warn-bg);color:var(--warn);}
+
+/* ── BUTTONS ────────────────────────────────────────────────── */
+.btn-parse{width:100%;background:var(--primary);color:#fff;border:1.5px solid var(--primary);padding:12px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:var(--font-ui);letter-spacing:.03em;}
+.btn-parse:hover{background:#2a3749;border-color:#2a3749;}
+.btn-gen{width:100%;background:var(--accent);color:#fff;border:1.5px solid var(--accent);padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-ui);letter-spacing:.03em;}
+.btn-gen:hover{background:var(--accent-dark);border-color:var(--accent-dark);}
+.btn-add{background:none;border:1.5px dashed var(--line);color:var(--accent);cursor:pointer;padding:7px 12px;font-size:12px;font-weight:600;width:100%;font-family:var(--font-ui);}
+.btn-add:hover{background:var(--accent-bg);border-style:solid;}
+.btn-rm{flex-shrink:0;background:none;border:1.5px solid var(--line);color:var(--faint);cursor:pointer;width:26px;height:26px;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;}
+.btn-rm:hover{border-color:var(--danger);color:var(--danger);}
+.btn-act{border:none;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-ui);}
+.btn-act.primary{background:var(--primary);color:#fff;}
+.btn-act.primary:hover{background:#2a3749;}
+.btn-act.sec{background:transparent;color:var(--ink);border:1.5px solid var(--line);}
+.btn-act.sec:hover{border-color:var(--ink);}
+
+/* ── OUTPUT ─────────────────────────────────────────────────── */
+.out-card{background:var(--paper);border:1px solid var(--line);}
+.out-tb{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--card-alt);border-bottom:1px solid var(--line);}
+.out-tb-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-family:var(--font-mono);}
+.out-actions{display:flex;gap:6px;}
+
+/* ── PARSE MSG / STATE ──────────────────────────────────────── */
+.parse-msg{font-size:11.5px;padding:4px 0;display:flex;align-items:flex-start;gap:5px;line-height:1.5;}
+.parse-msg.ok{color:var(--ok);}
+.parse-msg.err{color:var(--danger);}
+.parse-msg.warn{color:var(--warn);}
+/* .post-parse kept for JS compatibility — controlled via .draft-band.visible */
+.placeholder{padding:60px 24px;text-align:center;color:var(--faint);}
+.placeholder svg{margin-bottom:14px;}
+.placeholder p{font-size:12.5px;max-width:220px;margin:0 auto;line-height:1.6;}
+
+/* ── DROP ZONE ──────────────────────────────────────────────── */
+.drop-zone{border:2px dashed var(--line);padding:32px 20px;text-align:center;cursor:pointer;background:var(--card-alt);}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--accent);background:var(--accent-bg);}
+.drop-zone.has-file{border-style:solid;border-color:var(--accent);background:var(--accent-bg);}
+.drop-icon{font-size:28px;margin-bottom:8px;line-height:1;}
+.drop-label{font-size:12.5px;color:var(--muted);line-height:1.55;}
+.drop-hint{font-size:11px;color:var(--faint);margin-top:5px;}
+.fname{font-size:11.5px;font-weight:700;color:var(--ok);margin-top:7px;word-break:break-all;}
+
+/* ── ANNEXURE CARDS ─────────────────────────────────────────── */
+.ann-card{display:flex;border:1.5px solid var(--line);background:var(--paper);}
+.ann-card:hover{border-color:#b0bec5;}
+.ann-num{flex-shrink:0;width:46px;background:var(--card-alt);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;letter-spacing:.04em;color:var(--muted);text-align:center;padding:4px 2px;line-height:1.3;border-right:1px solid var(--line);font-family:var(--font-mono);}
+.ann-desc-wrap{flex:1;display:flex;flex-direction:column;}
+.ann-desc-input{border:none;background:transparent;padding:8px 10px;font-family:var(--font-doc);font-size:11.5px;line-height:1.55;color:var(--ink);resize:vertical;min-height:56px;outline:none;width:100%;}
+.ann-desc-input:focus{background:var(--accent-bg);}
+.ann-remove{flex-shrink:0;background:none;border:none;border-left:1px solid var(--line);width:28px;cursor:pointer;color:var(--faint);font-size:14px;}
+.ann-remove:hover{color:var(--danger);background:rgba(220,38,38,.06);}
+
+/* ── PROVISIONS ─────────────────────────────────────────────── */
+.prov-item{display:flex;align-items:flex-start;gap:9px;padding:8px 10px;border:1.5px solid var(--line);cursor:pointer;background:var(--panel);}
+.prov-item:hover,.prov-item.selected{border-color:var(--accent);background:var(--accent-bg);}
+.prov-item input[type="checkbox"]{margin-top:2px;flex-shrink:0;accent-color:var(--accent);width:14px;height:14px;cursor:pointer;}
+.prov-text{font-size:12px;line-height:1.45;flex:1;}
+.prov-ct{font-size:10px;color:var(--faint);margin-top:1px;}
+.prov-list{display:flex;flex-direction:column;gap:6px;}
+.dyn-item{display:flex;gap:6px;align-items:center;}
+.dyn-item input{flex:1;}
+.chk-row{display:flex;flex-wrap:wrap;gap:10px;}
+.chk-item{display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400;}
+.chk-item input[type="checkbox"]{width:auto;accent-color:var(--accent);cursor:pointer;}
+
+/* ── INDEX PREVIEW ──────────────────────────────────────────── */
+#idx-content{padding:20px 22px 26px;}
+.idx-t{text-align:center;font-family:var(--font-doc);font-size:14px;font-weight:bold;letter-spacing:.12em;text-transform:uppercase;text-decoration:underline;text-underline-offset:4px;margin:17px 0 13px;}
+.tw{overflow-x:auto;}
+.idt{width:100%;border-collapse:collapse;font-family:var(--font-doc);font-size:11.5px;min-width:520px;}
+.idt th{border:1.5px solid var(--ink);padding:5px 8px;text-align:center;font-size:10px;letter-spacing:.02em;background:var(--accent-bg);}
+.idt td{border:1px solid #b0bec5;padding:6px 9px;vertical-align:top;}
+.idt td.csr{text-align:center;font-variant-numeric:tabular-nums;width:36px;color:var(--muted);font-size:10.5px;white-space:nowrap;}
+.idt td.cdesc{line-height:1.55;}
+.idt td.cpg{text-align:center;width:86px;font-variant-numeric:tabular-nums;}
+.pgf{background:transparent;border:none;border-bottom:1px dashed #b0bec5;text-align:center;width:72px;font-family:var(--font-doc);font-size:11.5px;color:var(--ink);padding:1px 2px;outline:none;}
+.pgf:focus{border-bottom-color:var(--accent);background:var(--accent-bg);}
+.pgf::placeholder{color:var(--faint);font-size:10px;font-style:italic;}
+.adesc{font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.4;}
+.idx-sign{margin-top:18px;font-family:var(--font-doc);font-size:11.5px;text-align:right;line-height:1.7;}
+
+/* ── FOOTER ─────────────────────────────────────────────────── */
+.site-footer{border-top:1px solid var(--line);background:var(--card-alt);}
+.site-footer .inner{max-width:1180px;margin:0 auto;padding:20px 24px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--faint);}
+.site-footer .mono{font-family:var(--font-mono);}
+
+/* ── PRINT ──────────────────────────────────────────────────── */
+@media print{
+  .col-l,.site-header,.site-footer,.out-tb{display:none!important;}
+  .col-r,.out-card{box-shadow:none;border:none;}
+  #idx-content{padding:0;}
+  .pgf{border:none;}
+  body{background:white;}
+  .idt th{background:var(--accent-bg)!important;-webkit-print-color-adjust:exact;}
+}
+@media(max-width:760px){
+  .site-header .inner{flex-wrap:wrap;height:auto;row-gap:8px;padding-top:10px;padding-bottom:10px;}
+  .oc-navlink{display:none;}
+  header.top h1{font-size:26px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── AUTH OVERLAY ──────────────────────────────────────────── -->
+<div id="auth-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--primary);display:flex;align-items:center;justify-content:center;">
+  <div style="background:var(--paper);padding:40px 48px;max-width:380px;width:90%;text-align:center;">
+    <div style="margin-bottom:20px;">
+      <svg viewBox="0 0 100 100" width="40" height="40" style="display:inline-block;color:var(--primary)"><rect x="12" y="12" width="76" height="76" rx="17" fill="none" stroke="currentColor" stroke-width="7"/><circle cx="40" cy="50" r="11" fill="none" stroke="currentColor" stroke-width="6"/><path d="M68 41 A11 11 0 1 0 68 59" fill="none" stroke="#C39A52" stroke-width="6" stroke-linecap="round"/></svg>
+    </div>
+    <div style="font-size:11px;font-family:var(--font-mono);letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">OneCourt</div>
+    <div style="font-size:20px;font-weight:700;margin-bottom:6px;color:var(--ink);">SLP Index Generator</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:28px;">Enter your access password to continue.</div>
+    <input type="password" id="auth-input" placeholder="Password"
+      style="width:100%;padding:11px 14px;border:1.5px solid var(--line);font-size:14px;font-family:var(--font-ui);margin-bottom:10px;outline:none;color:var(--ink);background:#fff;"
+      onkeydown="if(event.key==='Enter')checkAuth()">
+    <div id="auth-err" style="font-size:12px;color:var(--danger);min-height:18px;margin-bottom:10px;"></div>
+    <button onclick="checkAuth()"
+      style="width:100%;background:var(--primary);color:#fff;border:none;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-ui);">
+      Enter
+    </button>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="inner">
+    <div class="left">
+      <a class="oc-logo" href="https://onecourt.in">
+        <span class="mark"><svg viewBox="0 0 100 100" width="34" height="34"><rect x="12" y="12" width="76" height="76" rx="17" fill="none" stroke="currentColor" stroke-width="7"/><circle cx="40" cy="50" r="11" fill="none" stroke="currentColor" stroke-width="6"/><path d="M68 41 A11 11 0 1 0 68 59" fill="none" stroke="#C39A52" stroke-width="6" stroke-linecap="round"/></svg></span>
+        <span class="name">OneCourt</span>
+      </a>
+      <span class="tag">SLP Index</span>
+    </div>
+    <div class="right">
+      <nav class="oc-nav">
+        <a class="oc-navlink" href="https://onecourt.in/about-onecourt.html">Start Here</a>
+        <details class="oc-tools">
+          <summary>Tools for Lawyers <span class="car">▾</span></summary>
+          <div class="menu">
+            <a href="https://onecourt.in/Court_Holiday_Planner.html">Court Holiday Planner</a>
+            <a href="https://onecourt.in/vakalatnama-generator.html">Generate Vakalatnama</a>
+            <a class="current" href="#">SLP Index Generator</a>
+            <a href="/affidavit-generator.html">SC Affidavit Generator</a>
+            <a href="/case-status.html">Case Status</a>
+            <a href="https://onecourt.in/bare-acts">Bare Acts</a>
+            <a href="/nclat">NCLAT Cause List</a>
+          </div>
+        </details>
+      </nav>
+      <a class="oc-contact" href="https://onecourt.in/Contact%20Us.html">Feedback | Contact Us</a>
+    </div>
+  </div>
+</header>
+
+<div class="app">
+<header class="top">
+  <div>
+    <div class="eyebrow">Tools for Lawyers</div>
+    <h1>SLP Index <em>Generator</em></h1>
+  </div>
+</header>
+
+<!-- ── STEP 1: UPLOAD + ACTION ────────────────────────────────── -->
+<div class="band upload-band">
+  <div class="card">
+    <div class="ch">Upload SLP Draft</div>
+    <div class="cb">
+      <div class="drop-zone" id="drop-zone"
+           onclick="document.getElementById('f-docx').click()"
+           ondragover="dzOver(event)" ondragleave="dzLeave(event)" ondrop="dzDrop(event)"
+           style="padding:20px 24px;display:flex;align-items:center;gap:16px;text-align:left;">
+        <div class="drop-icon" style="font-size:24px;flex-shrink:0;">📄</div>
+        <div>
+          <div class="drop-label">Drop your <strong>.docx</strong> file here or <u style="cursor:pointer">click to browse</u></div>
+          <div class="drop-hint" style="margin-top:3px;">Microsoft Word document (.docx only)</div>
+          <div class="fname" id="f-fname" style="display:none;margin-top:4px;"></div>
+        </div>
+      </div>
+      <input type="file" id="f-docx" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+             style="display:none" onchange="fileChosen(this.files[0])">
+      <div id="parse-msg" class="parse-msg" style="display:none;margin-top:4px;"></div>
+
+      <!-- Action buttons — revealed after file is loaded -->
+      <div id="action-row" style="display:none;margin-top:4px;">
+        <div style="border-top:1px solid var(--line);padding-top:16px;">
+          <div class="choice-cards">
+            <button class="choice-btn" onclick="parseAndReview()">
+              <div class="choice-icon">🔍</div>
+              <div class="choice-title">Review &amp; Generate Index</div>
+              <div class="choice-desc">Check and edit the auto-extracted details, annexures, and provisions before generating.</div>
+            </button>
+            <button class="choice-btn choice-primary" onclick="parseAndGenerate()">
+              <div class="choice-icon">⚡</div>
+              <div class="choice-title">Generate Index Now</div>
+              <div class="choice-desc">Generate immediately using auto-extracted data. Download the index right away.</div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── STEP 3: EDIT FIELDS (Review path) ─────────────────────── -->
+<div class="band" id="edit-band" style="display:none">
+
+  <!-- Collapsed summary shown after generating from review -->
+  <div class="edit-summary" id="edit-summary">
+    <span id="edit-summary-text">Index items reviewed.</span>
+    <button class="edit-summary-link" onclick="reEdit()">↩ Re-edit index items</button>
+  </div>
+
+  <!-- Full edit fields -->
+  <div class="edit-fields" id="edit-fields">
+
+    <div class="card">
+      <div class="ch">Impugned Order <span id="order-badge" class="badge badge-ok" style="font-size:9px"></span></div>
+      <div class="cb">
+        <div class="field-row">
+          <div class="pf">
+            <label>Type</label>
+            <select id="e-otype" onchange="otypeChanged()">
+              <option value="Judgment and Final Order" selected>Impugned Judgment and Final Order</option>
+              <option value="order">Impugned Order</option>
+              <option value="interim order">Impugned Interim Order</option>
+              <option value="judgment and order">Impugned Judgment and Order</option>
+              <option value="final order">Impugned Final Order</option>
+              <option value="award">Award</option>
+              <option value="decree">Decree</option>
+              <option value="__custom__">Custom…</option>
+            </select>
+            <input type="text" id="e-otype-custom" placeholder="Enter type…" style="display:none;margin-top:6px">
+          </div>
+          <div class="pf">
+            <label>Date</label>
+            <input type="text" id="e-odate" placeholder="DD.MM.YYYY">
+          </div>
+        </div>
+        <div class="pf">
+          <label>Forum</label>
+          <div class="forum-row">
+            <select id="e-forum-sel" onchange="forumChanged()">
+              <option value="">— Select court / tribunal —</option>
+              <optgroup label="High Courts" id="opts-hc"></optgroup>
+              <optgroup label="Tribunals" id="opts-trib"></optgroup>
+              <option value="__custom__">Custom…</option>
+            </select>
+            <div class="forum-bench-wrap">
+              <label>Bench</label>
+              <select id="e-bench-sel" onchange="updateForumHidden()" disabled></select>
+            </div>
+          </div>
+          <div class="forum-custom-row" id="forum-custom-row" style="display:none">
+            <input type="text" id="e-oforum-custom" placeholder="Forum name" oninput="updateForumHidden()">
+            <input type="text" id="e-obench-custom" placeholder="Bench / city (opt.)" oninput="updateForumHidden()">
+          </div>
+          <input type="hidden" id="e-oforum">
+        </div>
+        <div class="pf">
+          <label>Case Number Below</label>
+          <input type="text" id="e-ocase" placeholder="e.g. W.P.(C) No. 1234 of 2024">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ch">Annexure Descriptions <span id="ann-badge" class="badge" style="font-size:9px"></span></div>
+      <div class="cb">
+        <p class="hint">Extracted from List of Dates. Edit if needed before generating.</p>
+        <div id="ann-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+        <button class="btn-add" onclick="addAnnexure()">+ Add Annexure</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ch">Appendix Provisions <span class="badge badge-warn" style="font-size:9px">Select</span></div>
+      <div class="cb">
+        <p class="hint">Statutory provisions found in the SLP. Check those to include in the Appendix.</p>
+        <div id="prov-list" class="prov-list"></div>
+        <button class="btn-add" onclick="addCustomProv()" style="margin-top:4px">+ Add manually</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ch">Interlocutory Applications</div>
+      <div class="cb">
+        <div id="ia-list" style="display:flex;flex-direction:column;gap:7px;"></div>
+        <button class="btn-add" onclick="addIAItem('')">+ Add IA</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ch">Tail Documents</div>
+      <div class="cb">
+        <div class="chk-row">
+          <label class="chk-item"><input type="checkbox" id="f-fm" checked> F / M</label>
+          <label class="chk-item"><input type="checkbox" id="f-va" checked> V / A</label>
+          <label class="chk-item"><input type="checkbox" id="f-br"> Board Resolution</label>
+          <label class="chk-item"><input type="checkbox" id="f-poa"> Power of Attorney</label>
+          <label class="chk-item"><input type="checkbox" id="f-urg"> Urgency Application</label>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-gen" onclick="generateFromReview()">Generate Index</button>
+
+  </div><!-- /edit-fields -->
+</div><!-- /edit-band -->
+
+<!-- ── STEP 4: GENERATED INDEX ───────────────────────────────── -->
+<div class="band" id="index-band" style="display:none">
+  <div class="out-card">
+    <div class="out-tb">
+      <span class="out-tb-title">Generated Index</span>
+    </div>
+    <div id="output-wrap"></div>
+  </div>
+  <div class="index-actions">
+    <div class="index-actions-label">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#1F8A5F" stroke-width="1.3"/><path d="M5 8l2.5 2.5L11 5.5" stroke="#1F8A5F" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Index ready
+    </div>
+    <div class="index-actions-btns">
+      <button class="btn-act sec" onclick="copyIdx()">Copy</button>
+      <button class="btn-act sec" onclick="downloadAsWord()">Download .docx</button>
+      <button class="btn-act primary" onclick="window.print()">Print</button>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="inner">
+    <span>© 2025 <a href="https://onecourt.in" style="color:inherit;text-decoration:none;">OneCourt</a> · Built for Indian lawyers</span>
+    <span class="mono">SLP Index Generator</span>
+  </div>
+</footer>
+
+<script>
+// ── AUTH ──────────────────────────────────────────────────────────
+(function(){
+  const overlay=document.getElementById('auth-overlay');
+  if(sessionStorage.getItem('oc-slp-auth')==='1'){overlay.style.display='none';}
+  else{overlay.style.display='flex';}
+})();
+function checkAuth(){
+  const pwd=document.getElementById('auth-input').value;
+  if(pwd==='SLP@9kTm'){
+    sessionStorage.setItem('oc-slp-auth','1');
+    document.getElementById('auth-overlay').style.display='none';
+  } else {
+    document.getElementById('auth-err').textContent='Incorrect password. Try again.';
+    document.getElementById('auth-input').value='';
+    document.getElementById('auth-input').focus();
+  }
+}
+
+// ── DOCX READING ─────────────────────────────────────────────────
+let slpText = '';
+
+function dzOver(e)  { e.preventDefault(); document.getElementById('drop-zone').classList.add('drag-over'); }
+function dzLeave(e) { document.getElementById('drop-zone').classList.remove('drag-over'); }
+function dzDrop(e)  { e.preventDefault(); dzLeave(e); const f=e.dataTransfer.files[0]; if(f) fileChosen(f); }
+
+function fileChosen(file) {
+  if (!file) return;
+  if (!file.name.endsWith('.docx')) { showMsg('err','Please upload a .docx file.'); return; }
+  showMsg('ok','Reading file…');
+  document.getElementById('action-row').style.display='none';
+  const dz=document.getElementById('drop-zone');
+  dz.classList.remove('has-file');
+  const reader=new FileReader();
+  reader.onload=async e=>{
+    try {
+      slpText=await docxToText(e.target.result);
+      dz.classList.add('has-file');
+      const fn=document.getElementById('f-fname');
+      fn.textContent='✓ '+file.name; fn.style.display='block';
+      showMsg('ok','File ready — choose an option below.');
+      document.getElementById('action-row').style.display='block';
+    } catch(err){ showMsg('err','Could not read file: '+err.message); }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+async function docxToText(arrayBuffer) {
+  const bytes=new Uint8Array(arrayBuffer);
+  const view=new DataView(arrayBuffer);
+  let eocd=-1;
+  for(let i=bytes.length-22;i>=0;i--){
+    if(view.getUint32(i,true)===0x06054b50){eocd=i;break;}
+  }
+  if(eocd<0) throw new Error('Not a valid ZIP/docx file');
+  const cdOffset=view.getUint32(eocd+16,true);
+  const cdSize=view.getUint32(eocd+12,true);
+  let pos=cdOffset,entry=null;
+  while(pos<cdOffset+cdSize){
+    if(view.getUint32(pos,true)!==0x02014b50) break;
+    const compression=view.getUint16(pos+10,true);
+    const compressedSize=view.getUint32(pos+20,true);
+    const fnLen=view.getUint16(pos+28,true);
+    const exLen=view.getUint16(pos+30,true);
+    const cmLen=view.getUint16(pos+32,true);
+    const lhOff=view.getUint32(pos+42,true);
+    const name=new TextDecoder().decode(bytes.subarray(pos+46,pos+46+fnLen));
+    if(name==='word/document.xml') entry={compression,compressedSize,lhOff};
+    pos+=46+fnLen+exLen+cmLen;
+  }
+  if(!entry) throw new Error('word/document.xml not found — is this a .docx file?');
+  const lhFnLen=view.getUint16(entry.lhOff+26,true);
+  const lhExLen=view.getUint16(entry.lhOff+28,true);
+  const dataStart=entry.lhOff+30+lhFnLen+lhExLen;
+  const compressed=bytes.subarray(dataStart,dataStart+entry.compressedSize);
+  let xmlBytes;
+  if(entry.compression===0){
+    xmlBytes=compressed;
+  } else if(entry.compression===8){
+    const ds=new DecompressionStream('deflate-raw');
+    const w=ds.writable.getWriter();
+    w.write(compressed);w.close();
+    const r=ds.readable.getReader();
+    const chunks=[];
+    for(;;){const{done,value}=await r.read();if(done)break;chunks.push(value);}
+    const total=chunks.reduce((s,c)=>s+c.length,0);
+    xmlBytes=new Uint8Array(total);
+    let off=0;for(const c of chunks){xmlBytes.set(c,off);off+=c.length;}
+  } else {
+    throw new Error('Unsupported compression method: '+entry.compression);
+  }
+  return docxXmlToText(new TextDecoder('utf-8').decode(xmlBytes));
+}
+
+function docxXmlToText(xml) {
+  const doc=new DOMParser().parseFromString(xml,'text/xml');
+  const parseErr=doc.getElementsByTagName('parsererror')[0];
+  if(parseErr) throw new Error('XML parse error in document.xml: '+parseErr.textContent.slice(0,200));
+  const NS='http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+  const paras=doc.getElementsByTagNameNS(NS,'p');
+  const lines=[];
+  for(const p of paras){
+    const runs=p.getElementsByTagNameNS(NS,'t');
+    const parts=[];for(const t of runs) parts.push(t.textContent);
+    lines.push(parts.join(''));
+  }
+  return lines.join('\n');
+}
+
+// ── STATE ────────────────────────────────────────────────────────
+const silent={};
+
+// ── PARSE ────────────────────────────────────────────────────────
+function parseSLP() {
+  if(!slpText.trim()){showMsg('err','Please upload a .docx file first.');return false;}
+  const text=slpText.replace(/\r\n/g,'\n');
+  const flat=text.replace(/\n+/g,' ').replace(/[ \t]+/g,' ');
+
+  const typeM=flat.match(/SPECIAL\s+LEAVE\s+PETITION\s*\(\s*(CIVIL|CRIMINAL|C(?:rl)?\.?)\s*\)/i)
+            ||flat.match(/S\.?\s*L\.?\s*P\.?\s*\(\s*(CIVIL|CRIMINAL|C(?:rl)?\.?)\s*\)/i);
+  if(typeM){const t=(typeM[1]||'').toUpperCase().replace(/\./g,'');silent.type=(t==='CRIMINAL'||t==='CRL')?'Criminal':'Civil';}
+  else silent.type='Civil';
+  const yearM=flat.match(/NO\.?\s+OF\s+(\d{4})/i)||flat.match(/DATED[:\s]+\d{2}\.\d{2}\.(\d{4})/i);
+  silent.year=yearM?yearM[1]:'';
+  const petM=flat.match(/([\w][\w\s,.()\-\/&']+?)\s*(?:\.{2,}|…)+\s*Petitioner/i);
+  silent.petitioner=petM?clean(petM[1]):'';
+  const resM=flat.match(/([\w][\w\s,.()\-\/&']+?)\s*(?:\.{2,}|…)+\s*Respondent/i);
+  silent.respondent=resM?clean(resM[1]):'';
+  const advM=flat.match(/ADVOCATE\s+FOR\s+THE\s+PETITIONER\s*[:\-]\s*([\w\s.]+?)(?:\s{2,}|$)/i)
+            ||flat.match(/\(?([\w\s.]+)\)?\s+AOR\s+for\s+the\s+Petitioner/i);
+  silent.advocate=advM?clean(advM[1]):'';
+
+  const firstParaM=flat.match(
+    /filed\s+against\s+the\s+impugned\s+((?:interim|final|common)\s+)?(\w+(?:\s+and\s+\w+)?)[^"]*?dated\s+(\d{1,2}[.\s]\d{2}[.\s]\d{4}|\d{1,2}\s+\w+\s+\d{4})\s+passed\s+by\s+(?:the\s+)?(?:Ld\.\s+|Hon'ble\s+)?([\w\s,]+?(?:Court|Tribunal|Commission|Board|Authority|Government)[^,\n]*?),?\s+(?:[\w]+,?\s+)?in\s+((?:\w[\w\s.()\[\]\/\-]*)No\.?\s*[\d\/]+(?:\s+of\s+\d{4})?)/i
+  );
+  let oFound=0;
+  if(firstParaM){
+    const qualifier=(firstParaM[1]||'').trim();
+    const base=firstParaM[2].trim().toLowerCase();
+    setVal('e-otype',qualifier?qualifier+' '+base:base);
+    setVal('e-odate',normaliseDate(firstParaM[3]));
+    autoSetForum(clean(firstParaM[4]));
+    setVal('e-ocase',clean(firstParaM[5]));
+    oFound=4;
+  } else {
+    const odM=flat.match(/impugned[^.]{0,60}?dated\s+(\d{1,2}[.\s]\d{2}[.\s]\d{4}|\d{1,2}\s+\w+\s+\d{4})/i);
+    if(odM){setVal('e-odate',normaliseDate(odM[1]));oFound++;}
+    const otM=flat.match(/impugned\s+((?:interim|final|common)\s+)?(?:order|judgment(?:\s+and\s+order)?|decree|award)/i);
+    if(otM){const q=(otM[1]||'').trim();setVal('e-otype',q?q+' '+otM[0].split(/\s+/).pop():otM[0].split(/\s+/).pop());oFound++;}
+    const forumM=flat.match(/passed\s+by\s+(?:the\s+)?(?:Ld\.\s+|Hon'ble\s+)?([\w\s,]+?(?:Court|Tribunal|Commission|Board|Authority)[\w\s,]*?),?\s+(?:\w+\s+)?in\s+([\w\s.()\[\]\/\-]+?No\.?\s*[\d\/]+(?:\s+of\s+\d{4})?)/i);
+    if(forumM){autoSetForum(clean(forumM[1]));setVal('e-ocase',clean(forumM[2]));oFound+=2;}
+  }
+  const badge=document.getElementById('order-badge');
+  badge.textContent=oFound>=4?'✓ all fields':oFound>0?`${oFound}/4 fields`:'not detected';
+  badge.className='badge '+(oFound>=4?'badge-ok':'badge-warn');
+
+  const annexures=parseAnnexures(text);
+  populateAnnexures(annexures);
+
+  const iaRe=/I\.?\s*A\.?\s+NO\.?\s+OF\s+\d{4}[^\n(]*\n?\s*\(([^)]+)\)/gi;
+  const ias=[];let iaM;
+  while((iaM=iaRe.exec(text))!==null) ias.push(iaM[1].trim());
+  populateIAs(ias);
+
+  populateProvisions(extractProvisions(flat));
+
+  slpParsed=true;
+  if(annexures.length){
+    showMsg('ok',`✓ ${annexures.length} annexure${annexures.length!==1?'s':''} extracted.`);
+  } else {
+    const dbgFlat=text.replace(/[\r\n\t]+/g,' ').replace(/ +/g,' ');
+    const idx=dbgFlat.toLowerCase().indexOf('annex');
+    const snippet=idx>=0?`"…${dbgFlat.slice(Math.max(0,idx-40),idx+120)}…"`:'(no "annex" text found in document)';
+    showMsg('warn',`No annexures found. Verify the List of Dates contains phrases like "is annexed as Annexure P-1". Extracted text near "annex": ${snippet}`);
+  }
+  return true;
+}
+
+function parseAndReview(){
+  if(!parseSLP()) return;
+  startReview();
+}
+
+function parseAndGenerate(){
+  if(!parseSLP()) return;
+  skipReview();
+}
+
+// ── COURT / FORUM DATA ───────────────────────────────────────────
+const COURTS=[
+  // High Courts
+  {id:'allahabad',  name:'Allahabad High Court',                              benches:['Prayagraj','Lucknow'],                                                       type:'hc'},
+  {id:'andhra',     name:'Andhra Pradesh High Court',                          benches:['Amaravati'],                                                                  type:'hc'},
+  {id:'bombay',     name:'Bombay High Court',                                  benches:['Mumbai','Aurangabad','Nagpur','Panaji','Kolhapur'],                            type:'hc'},
+  {id:'calcutta',   name:'Calcutta High Court',                                benches:['Kolkata','Port Blair','Jalpaiguri'],                                          type:'hc'},
+  {id:'chhattisgarh',name:'Chhattisgarh High Court',                           benches:['Bilaspur'],                                                                   type:'hc'},
+  {id:'delhi',      name:'Delhi High Court',                                   benches:['New Delhi'],                                                                  type:'hc'},
+  {id:'gauhati',    name:'Gauhati High Court',                                 benches:['Guwahati','Aizawl','Itanagar','Kohima'],                                     type:'hc'},
+  {id:'gujarat',    name:'Gujarat High Court',                                 benches:['Ahmedabad'],                                                                  type:'hc'},
+  {id:'hp',         name:'Himachal Pradesh High Court',                        benches:['Shimla'],                                                                     type:'hc'},
+  {id:'jk',         name:'Jammu & Kashmir and Ladakh High Court',              benches:['Srinagar','Jammu'],                                                          type:'hc'},
+  {id:'jharkhand',  name:'Jharkhand High Court',                               benches:['Ranchi'],                                                                     type:'hc'},
+  {id:'karnataka',  name:'Karnataka High Court',                               benches:['Bengaluru','Dharwad','Kalaburagi'],                                          type:'hc'},
+  {id:'kerala',     name:'Kerala High Court',                                  benches:['Kochi'],                                                                      type:'hc'},
+  {id:'mp',         name:'Madhya Pradesh High Court',                          benches:['Jabalpur','Gwalior','Indore'],                                               type:'hc'},
+  {id:'madras',     name:'Madras High Court',                                  benches:['Chennai','Madurai'],                                                          type:'hc'},
+  {id:'manipur',    name:'Manipur High Court',                                 benches:['Imphal'],                                                                     type:'hc'},
+  {id:'meghalaya',  name:'Meghalaya High Court',                               benches:['Shillong'],                                                                   type:'hc'},
+  {id:'orissa',     name:'Orissa High Court',                                  benches:['Cuttack'],                                                                    type:'hc'},
+  {id:'patna',      name:'Patna High Court',                                   benches:['Patna'],                                                                      type:'hc'},
+  {id:'pnh',        name:'Punjab and Haryana High Court',                      benches:['Chandigarh'],                                                                 type:'hc'},
+  {id:'rajasthan',  name:'Rajasthan High Court',                               benches:['Jodhpur','Jaipur'],                                                          type:'hc'},
+  {id:'sikkim',     name:'Sikkim High Court',                                  benches:['Gangtok'],                                                                    type:'hc'},
+  {id:'telangana',  name:'Telangana High Court',                               benches:['Hyderabad'],                                                                  type:'hc'},
+  {id:'tripura',    name:'Tripura High Court',                                 benches:['Agartala'],                                                                   type:'hc'},
+  {id:'uttarakhand',name:'Uttarakhand High Court',                             benches:['Nainital'],                                                                   type:'hc'},
+  // Tribunals
+  {id:'nclat',  name:'National Company Law Appellate Tribunal',               benches:['New Delhi','Chennai'],                                                         type:'trib'},
+  {id:'sat',    name:'Securities Appellate Tribunal',                          benches:['Mumbai'],                                                                      type:'trib'},
+  {id:'aptel',  name:'Appellate Tribunal for Electricity',                    benches:['New Delhi'],                                                                   type:'trib'},
+  {id:'tdsat',  name:'Telecom Disputes Settlement and Appellate Tribunal',    benches:['New Delhi'],                                                                   type:'trib'},
+  {id:'ngt',    name:'National Green Tribunal',                               benches:['New Delhi','Bhopal','Pune','Kolkata','Chennai'],                               type:'trib'},
+  {id:'aft',    name:'Armed Forces Tribunal',                                 benches:['New Delhi','Chandigarh','Lucknow','Kolkata','Guwahati','Chennai','Kochi','Mumbai','Jaipur','Jabalpur','Srinagar'], type:'trib'},
+  {id:'ncdrc',  name:'National Consumer Disputes Redressal Commission',       benches:['New Delhi'],                                                                   type:'trib'},
+  {id:'cestat', name:'Customs, Excise and Service Tax Appellate Tribunal',    benches:['New Delhi','Mumbai','Kolkata','Chennai','Ahmedabad','Bengaluru','Chandigarh','Hyderabad','Allahabad'], type:'trib'},
+];
+
+function initForumSelect(){
+  const hcGroup=document.getElementById('opts-hc');
+  const tribGroup=document.getElementById('opts-trib');
+  COURTS.forEach(c=>{
+    const opt=document.createElement('option');
+    opt.value=c.id;opt.textContent=c.name;
+    (c.type==='hc'?hcGroup:tribGroup).appendChild(opt);
+  });
+}
+
+function forumChanged(){
+  const sel=document.getElementById('e-forum-sel');
+  const benchSel=document.getElementById('e-bench-sel');
+  const customRow=document.getElementById('forum-custom-row');
+  const isCustom=sel.value==='__custom__';
+  customRow.style.display=isCustom?'grid':'none';
+  if(isCustom){benchSel.innerHTML='';benchSel.disabled=true;updateForumHidden();return;}
+  const court=COURTS.find(c=>c.id===sel.value);
+  if(!court){benchSel.innerHTML='';benchSel.disabled=true;updateForumHidden();return;}
+  benchSel.innerHTML=court.benches.map(b=>`<option value="${b}">${b}</option>`).join('');
+  benchSel.disabled=(court.benches.length===1);
+  updateForumHidden();
+}
+
+function updateForumHidden(){
+  const sel=document.getElementById('e-forum-sel');
+  const hidden=document.getElementById('e-oforum');
+  if(sel.value==='__custom__'){
+    const f=document.getElementById('e-oforum-custom').value.trim();
+    const b=document.getElementById('e-obench-custom').value.trim();
+    hidden.value=b?`${f} at ${b}`:f;
+    return;
+  }
+  const court=COURTS.find(c=>c.id===sel.value);
+  if(!court){hidden.value='';return;}
+  const bench=document.getElementById('e-bench-sel').value;
+  hidden.value=court.benches.length>1?`${court.name} at ${bench}`:court.name;
+}
+
+function autoSetForum(detected){
+  if(!detected) return;
+  const norm=s=>s.toLowerCase().replace(/hon'ble\s*/i,'').replace(/\s+/g,' ').trim();
+  const nd=norm(detected);
+  const court=COURTS.find(c=>{const nc=norm(c.name);return nd.includes(nc)||nc.includes(nd)||nc.split(' ').filter(w=>w.length>3).every(w=>nd.includes(w));});
+  const fsel=document.getElementById('e-forum-sel');
+  if(court){
+    fsel.value=court.id;
+    forumChanged();
+    if(court.benches.length>1){
+      const bsel=document.getElementById('e-bench-sel');
+      const match=court.benches.find(b=>nd.includes(b.toLowerCase()));
+      if(match) bsel.value=match;
+      updateForumHidden();
+    }
+  } else {
+    fsel.value='__custom__';
+    forumChanged();
+    document.getElementById('e-oforum-custom').value=detected;
+    updateForumHidden();
+  }
+}
+
+initForumSelect();
+
+// ── ANNEXURE PARSER ──────────────────────────────────────────────
+function parseAnnexures(text) {
+  const flat=text.replace(/[\r\n\t]+/g,' ').replace(/ +/g,' ');
+  const seen=new Set();
+  const anns=[];
+
+  // Matches: "is annexed as Annexure P-1", "A-1", "A1", "R-1", "R1", etc.
+  const markerRe=/\bis\s+(?:marked\s+and\s+)?annexed\s+(?:herewith\s+)?as\s+(?:ANNEXURE|Annexure)\s+([A-Z])[-–]?\s*(\d+)/gi;
+  let m;
+
+  while((m=markerRe.exec(flat))!==null){
+    const prefix=m[1].toUpperCase();
+    const num=parseInt(m[2]);
+    const key=prefix+num;
+    if(seen.has(key)) continue;
+    seen.add(key);
+    const win=flat.slice(Math.max(0,m.index-800),m.index);
+
+    // Tier 1: find last description-opener phrase (e.g. "True copy of", "Certified copy of")
+    const openerRe=/\b(?:(?:[Tt]rue|[Cc]ertified|[Aa]ttest(?:ed)?|[Nn]otari[sz](?:ed)?|[Pp]hoto(?:stat(?:ic)?)?|[Xx]erox)\s+(?:typed\s+|translated\s+|certified\s+)?[Cc]opy\s+of\b|(?:[Aa]n?\s+)?[Cc]opy\s+of\b)/g;
+    let om,last=null;
+    while((om=openerRe.exec(win))!==null) last=om;
+
+    let desc='';
+    if(last) desc=win.slice(last.index).trim();
+
+    // Tier 2 fallback: sentence-boundary split (digit-or-lowercase → ". " → uppercase)
+    if(!desc){
+      const segs=win.split(/(?<=[a-z0-9])\.\s+(?=[A-Z])/);
+      for(let i=segs.length-1;i>=0;i--){
+        const seg=segs[i].trim();
+        if(seg.length>8&&/^[A-Z]/.test(seg)){desc=seg;break;}
+      }
+    }
+
+    desc=desc.replace(/ [B-HJ-Z] /g,' ');
+    desc=desc.replace(/\s+/g,' ').trim();
+    anns.push({prefix,num,desc});
+  }
+
+  if(!anns.length){
+    // Fallback: pick up any ANNEXURE X-N label in the text (e.g. from an index table)
+    const rf=/\bANNEXURE\s+([A-Z])[-–]?\s*(\d+)/gi;
+    while((m=rf.exec(flat))!==null){
+      const prefix=m[1].toUpperCase();
+      const num=parseInt(m[2]);
+      const key=prefix+num;
+      if(!seen.has(key)){seen.add(key);anns.push({prefix,num,desc:''});}
+    }
+  }
+  return anns.sort((a,b)=>a.prefix.localeCompare(b.prefix)||a.num-b.num);
+}
+
+// ── PROVISION EXTRACTOR ──────────────────────────────────────────
+function extractProvisions(flat){
+  const map=new Map();
+  const re1=/\b((?:Section|Rule|Article|Schedule)\s+[\d\w]+(?:\([^)]{0,20}\))*)\s+of\s+(?:the\s+)?([\w\s]+?Act[,]?\s+\d{4})/gi;
+  let m;
+  while((m=re1.exec(flat))!==null) inc(map,normalKey(m[0]),clean(m[1])+' of the '+clean(m[2]));
+  const re2=/\b(Article\s+[\d\w]+(?:\([^)]{0,10}\))*)\s+of\s+the\s+Constitution(?:\s+of\s+India)?/gi;
+  while((m=re2.exec(flat))!==null) inc(map,normalKey(m[0]),clean(m[1])+' of the Constitution of India');
+  return[...map.entries()].map(([k,v])=>({key:k,...v})).sort((a,b)=>b.count-a.count);
+}
+function inc(map,key,display){map.has(key)?map.get(key).count++:map.set(key,{display,count:1});}
+function normalKey(s){return s.toLowerCase().replace(/,\s*/g,' ').replace(/\s+/g,' ').trim();}
+
+// ── POPULATE ─────────────────────────────────────────────────────
+function populateAnnexures(anns){
+  const list=document.getElementById('ann-list');
+  list.innerHTML='';
+  anns.forEach(a=>renderAnnexureRow(list,a.prefix||'P',a.num,a.desc));
+  const badge=document.getElementById('ann-badge');
+  badge.textContent=anns.length?`${anns.length} extracted`:'none found';
+  badge.className='badge '+(anns.length?'badge-ok':'badge-warn');
+}
+function renderAnnexureRow(list,prefix,num,desc){
+  const div=document.createElement('div');
+  div.className='ann-card';div.dataset.num=num;div.dataset.prefix=prefix;
+  div.innerHTML=`<div class="ann-num">${prefix}-${num}</div><div class="ann-desc-wrap"><textarea class="ann-desc-input" rows="2" placeholder="Description for ANNEXURE ${prefix}-${num}">${esc(desc)}</textarea></div><button class="ann-remove" onclick="this.closest('.ann-card').remove()" title="Remove">×</button>`;
+  list.appendChild(div);
+  const ta=div.querySelector('textarea');
+  ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';
+  ta.addEventListener('input',()=>{ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';});
+}
+function addAnnexure(){
+  const list=document.getElementById('ann-list');
+  const cards=[...list.querySelectorAll('.ann-card')];
+  const nums=cards.map(d=>parseInt(d.dataset.num)||0);
+  const next=nums.length?Math.max(...nums)+1:1;
+  const lastPrefix=cards.length?(cards[cards.length-1].dataset.prefix||'P'):'P';
+  renderAnnexureRow(list,lastPrefix,next,'');
+  list.lastChild.querySelector('textarea').focus();
+}
+function populateIAs(ias){
+  const list=document.getElementById('ia-list');list.innerHTML='';
+  const defaults=[
+    'Application for exemption from filing certified copy of the impugned order',
+    'Application for exemption from filing notarised copy of Affidavit',
+    'Application for exemption from filing official translation'
+  ];
+  (ias.length?ias:defaults).forEach(t=>addIAItem(t));
+}
+function addIAItem(text){
+  const list=document.getElementById('ia-list');
+  const n=list.children.length+1;
+  const div=document.createElement('div');div.className='dyn-item';
+  div.innerHTML=`<input type="text" value="${esc(text)}" placeholder="IA ${n}: Application for…"><button class="btn-rm" onclick="this.parentElement.remove()">×</button>`;
+  list.appendChild(div);
+  if(!text) div.querySelector('input').focus();
+}
+let cProvN=0;
+function populateProvisions(entries){
+  const list=document.getElementById('prov-list');list.innerHTML='';
+  if(!entries.length){list.innerHTML='<p class="hint">No statutory provisions detected. Add manually.</p>';return;}
+  entries.forEach((e,i)=>{
+    const id='prov-'+i;
+    const item=document.createElement('label');
+    item.className='prov-item'+(i<4?' selected':'');item.htmlFor=id;
+    item.innerHTML=`<input type="checkbox" id="${id}" ${i<4?'checked':''} onchange="this.closest('.prov-item').classList.toggle('selected',this.checked)"><div><div class="prov-text">${esc(e.display)}</div><div class="prov-ct">cited ${e.count}×</div></div>`;
+    list.appendChild(item);
+  });
+}
+function addCustomProv(){
+  cProvN++;
+  const list=document.getElementById('prov-list');
+  const wrapper=document.createElement('div');
+  wrapper.style.cssText='display:flex;gap:7px;align-items:center;';
+  const id='cprov-'+cProvN;
+  wrapper.innerHTML=`<input type="checkbox" id="${id}" checked style="width:auto;flex-shrink:0;accent-color:var(--accent);margin-top:0"><input type="text" placeholder="e.g. Section 36 of the Industrial Disputes Act, 1947" style="flex:1;font-size:12px"><button class="btn-rm" onclick="this.parentElement.remove()">×</button>`;
+  list.appendChild(wrapper);
+  wrapper.querySelectorAll('input')[1].focus();
+}
+
+// ── INDEX GENERATION ─────────────────────────────────────────────
+let rowN=0;
+function tr(desc,p1='',p2=''){
+  rowN++;
+  return `<tr><td class="csr">${rowN}</td><td class="cdesc">${desc}</td><td class="cpg"><input class="pgf" value="${p1}" placeholder="—"></td><td class="cdesc" style="font-size:10px;color:var(--ink-faint)"></td><td class="cpg"><input class="pgf" value="${p2}" placeholder="—"></td></tr>`;
+}
+function trSub(desc){
+  return `<tr><td class="csr"></td><td class="cdesc" style="padding-left:26px;font-style:italic;font-size:11px">${desc}</td><td class="cpg"><input class="pgf" placeholder="—"></td><td class="cdesc"></td><td class="cpg"><input class="pgf" placeholder="—"></td></tr>`;
+}
+function generateIndex(){
+  const otype=getOtype(),odate=v('e-odate')||'[Date]',oforum=v('e-oforum')||'[Forum]',ocase=v('e-ocase')||'[Case No.]';
+  const annCards=[...document.querySelectorAll('#ann-list .ann-card')];
+  const annexures=annCards.map(d=>({prefix:d.dataset.prefix||'P',num:parseInt(d.dataset.num),desc:d.querySelector('textarea').value.trim()}));
+  const appendixItems=[];
+  document.querySelectorAll('#prov-list .prov-item input[type="checkbox"]:checked').forEach(cb=>{
+    const t=cb.closest('.prov-item').querySelector('.prov-text');if(t) appendixItems.push(t.textContent.trim());
+  });
+  document.querySelectorAll('#prov-list > div').forEach(w=>{
+    const cb=w.querySelector('input[type="checkbox"]'),ti=w.querySelector('input[type="text"]');
+    if(cb&&ti&&cb.checked&&ti.value.trim()) appendixItems.push(ti.value.trim());
+  });
+  const iaItems=[...document.querySelectorAll('#ia-list .dyn-item input')].map(i=>i.value.trim()).filter(Boolean);
+  const{type='Civil',year='20__',advocate=''}=silent;
+  const forumDisplay=(/High\s+Court/i.test(oforum)&&!/^\s*Hon'ble/i.test(oforum))?`Hon'ble ${oforum}`:oforum;
+  rowN=0;let rows='';
+  rows+=tr('O/R on Limitation','A');
+  rows+=tr('Listing Proforma','A1–A2');
+  rows+=tr('Cover Page of Paper Book','A-3');
+  rows+=tr('Index of Record of Proceedings','A-4');
+  rows+=tr('Limitation Report prepared by the Registry');
+  rows+=tr('Defect List');
+  rows+=tr('Note Sheet');
+  rows+=tr('Synopsis, List of Dates &amp; Events','B – ___');
+  rows+=tr(`Impugned ${otype} dated ${esc(odate)} passed by the ${esc(forumDisplay)} in ${esc(ocase)}.`);
+  rows+=tr(`Special Leave Petition (${type}) along with Affidavit.`);
+  if(appendixItems.length){
+    rows+=tr('Appendix');
+    'abcdefghijklmnopqrstuvwxyz'.split('').slice(0,appendixItems.length).forEach((l,i)=>{rows+=trSub(`${l}.&nbsp; ${esc(appendixItems[i])}`);});
+  }
+  annexures.forEach(a=>{
+    const label=`ANNEXURE ${a.prefix||'P'}-${a.num}`;
+    const descHtml=a.desc?`<strong>${label}</strong><div class="adesc">${esc(a.desc)}.</div>`:`<strong>${label}</strong>`;
+    rows+=tr(descHtml);
+  });
+  iaItems.forEach(ia=>rows+=tr(`<strong>I.A. No. &nbsp;&nbsp;&nbsp; of ${year}</strong><div class="adesc">${esc(ia)}.</div>`));
+  if(c('f-fm'))  rows+=tr('F / M');
+  if(c('f-va'))  rows+=tr('V / A');
+  if(c('f-br'))  rows+=tr('Board Resolution');
+  if(c('f-poa')) rows+=tr('Power of Attorney');
+  if(c('f-urg')) rows+=tr('Urgency Application');
+
+  document.getElementById('output-wrap').innerHTML=`<div id="idx-content">
+    <div class="idx-t">Index</div>
+    <div class="tw"><table class="idt">
+      <thead>
+        <tr>
+          <th rowspan="2" style="width:38px">(i)<br>Sr.&nbsp;No.</th>
+          <th colspan="2">Part I — Content of Paper Book</th>
+          <th colspan="2">Part II — Content of File Alone</th>
+        </tr>
+        <tr>
+          <th style="min-width:280px">(ii) Description</th>
+          <th style="width:88px">(iii) Pages</th>
+          <th style="width:90px">(iv)</th>
+          <th style="width:88px">(v) Pages</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table></div>
+    ${advocate?`<div class="idx-sign"><strong>${esc(advocate)}</strong><br>Advocate for the Petitioner</div>`:''}
+  </div>`;
+}
+
+// ── FLOW CONTROL ─────────────────────────────────────────────────
+let slpParsed=false;
+
+function startReview(){
+  const eb=document.getElementById('edit-band');
+  eb.style.display='block';
+  document.getElementById('edit-fields').style.display='flex';
+  document.getElementById('edit-summary').style.display='none';
+  eb.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function skipReview(){
+  generateIndex();
+  showIndexBand();
+}
+
+function generateFromReview(){
+  generateIndex();
+  // collapse edit fields to summary bar
+  const annCount=document.querySelectorAll('#ann-list .ann-card').length;
+  const forumVal=document.getElementById('e-oforum').value||'[Forum]';
+  document.getElementById('edit-summary-text').textContent=
+    `${annCount} annexure${annCount!==1?'s':''} · ${forumVal}`;
+  document.getElementById('edit-fields').style.display='none';
+  document.getElementById('edit-summary').style.display='flex';
+  showIndexBand();
+}
+
+function reEdit(){
+  document.getElementById('edit-fields').style.display='flex';
+  document.getElementById('edit-summary').style.display='none';
+  document.getElementById('edit-band').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function showIndexBand(){
+  const ib=document.getElementById('index-band');
+  ib.style.display='block';
+  ib.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ── HELPERS ──────────────────────────────────────────────────────
+function v(id){return document.getElementById(id).value.trim();}
+function getOtype(){const s=v('e-otype');return s==='__custom__'?(document.getElementById('e-otype-custom').value.trim()||'[Type]'):s;}
+function otypeChanged(){const custom=document.getElementById('e-otype-custom');custom.style.display=v('e-otype')==='__custom__'?'block':'none';}
+function c(id){return document.getElementById(id).checked;}
+function setVal(id,val){const el=document.getElementById(id);if(el&&val) el.value=val;}
+function clean(s){return(s||'').replace(/\s+/g,' ').trim();}
+function cap(s){return s?s[0].toUpperCase()+s.slice(1).toLowerCase():s;}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function normaliseDate(s){
+  const mo={january:'01',february:'02',march:'03',april:'04',may:'05',june:'06',july:'07',august:'08',september:'09',october:'10',november:'11',december:'12'};
+  const m=s.match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
+  return m?m[1].padStart(2,'0')+'.'+(mo[m[2].toLowerCase()]||'__')+'.'+m[3]:s.replace(/\s/g,'.');
+}
+function showMsg(type,text){
+  const el=document.getElementById('parse-msg');
+  el.className='parse-msg '+type;el.textContent=text;el.style.display='flex';
+}
+function copyIdx(){
+  const el=document.getElementById('idx-content');
+  if(!el){alert('Generate the index first.');return;}
+  navigator.clipboard.writeText(el.innerText).then(()=>{
+    const btn=event.target;btn.textContent='Copied!';
+    setTimeout(()=>btn.textContent='Copy',1800);
+  });
+}
+
+// ── WORD (.docx) EXPORT ──────────────────────────────────────────
+function downloadAsWord(){
+  if(!slpParsed){alert('Please upload and parse an SLP first.');return;}
+  const otype=getOtype(),odate=v('e-odate')||'[Date]',oforum=v('e-oforum')||'[Forum]',ocase=v('e-ocase')||'[Case No.]';
+  const{type='Civil',year='20__',advocate=''}=silent;
+  const annexures=[...document.querySelectorAll('#ann-list .ann-card')].map(d=>({prefix:d.dataset.prefix||'P',num:parseInt(d.dataset.num),desc:d.querySelector('textarea').value.trim()}));
+  const appendixItems=[];
+  document.querySelectorAll('#prov-list .prov-item input[type="checkbox"]:checked').forEach(cb=>{
+    const t=cb.closest('.prov-item')?.querySelector('.prov-text');if(t) appendixItems.push(t.textContent.trim());
+  });
+  document.querySelectorAll('#prov-list > div').forEach(w=>{
+    const cb=w.querySelector('input[type="checkbox"]'),ti=w.querySelector('input[type="text"]');
+    if(cb?.checked&&ti?.value.trim()) appendixItems.push(ti.value.trim());
+  });
+  const iaItems=[...document.querySelectorAll('#ia-list .dyn-item input')].map(i=>i.value.trim()).filter(Boolean);
+  const forumWord=(/High\s+Court/i.test(oforum)&&!/^\s*Hon'ble/i.test(oforum))?`Hon'ble ${oforum}`:oforum;
+  const rows=[];let srN=0;
+  const row=(desc,pg1='',sub=false,labelBold=false)=>{if(!sub) srN++;rows.push({sr:sub?'':srN,desc,pg1,sub,labelBold});};
+  row('O/R on Limitation','A');row('Listing Proforma','A1–A2');row('Cover Page of Paper Book','A-3');
+  row('Index of Record of Proceedings','A-4');row('Limitation Report prepared by the Registry');
+  row('Defect List');row('Note Sheet');row('Synopsis, List of Dates & Events','B – ___');
+  row(`Impugned ${otype} dated ${odate} passed by the ${forumWord} in ${ocase}.`);
+  row(`Special Leave Petition (${type}) along with Affidavit.`);
+  if(appendixItems.length){row('Appendix');'abcdefghijklmnopqrstuvwxyz'.slice(0,appendixItems.length).split('').forEach((l,i)=>row(`${l}.  ${appendixItems[i]}`,'',true));}
+  annexures.forEach(a=>row(a.desc?`ANNEXURE ${a.prefix||'P'}-${a.num}\n${a.desc}.`:`ANNEXURE ${a.prefix||'P'}-${a.num}`,'','',true));
+  iaItems.forEach(ia=>row(`I.A. No.     of ${year}\n${ia}.`,'','',true));
+  if(c('f-fm')) row('F / M');if(c('f-va')) row('V / A');if(c('f-br')) row('Board Resolution');
+  if(c('f-poa')) row('Power of Attorney');if(c('f-urg')) row('Urgency Application');
+  const te=new TextEncoder();
+  const zipFiles=[
+    {name:'[Content_Types].xml',data:te.encode(DOCX_CT)},
+    {name:'_rels/.rels',data:te.encode(DOCX_RELS)},
+    {name:'word/_rels/document.xml.rels',data:te.encode(DOCX_WORD_RELS)},
+    {name:'word/document.xml',data:te.encode(buildDocXml({advocate,rows}))},
+  ];
+  const zip=buildZip(zipFiles);
+  const blob=new Blob([zip],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+  const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(blob),download:'SLP_Index.docx'});
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(a.href);
+}
+
+const DOCX_CT=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+<Default Extension="xml" ContentType="application/xml"/>
+<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+</Types>`;
+const DOCX_RELS=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`;
+const DOCX_WORD_RELS=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+</Relationships>`;
+
+function buildDocXml({advocate,rows}){
+  const W=[700,4526,1200,1400,1200];
+  const BD=`<w:tcBorders><w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/><w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/><w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/><w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/></w:tcBorders>`;
+  function rp(bold){return `<w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/><w:sz w:val="28"/><w:szCs w:val="28"/>${bold?'<w:b/>':''}</w:rPr>`;}
+  function pp(align,bold){const jc=align?`<w:jc w:val="${align}"/>`:'';return `<w:pPr><w:spacing w:line="360" w:lineRule="auto"/>${jc}<w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/><w:sz w:val="28"/><w:szCs w:val="28"/>${bold?'<w:b/>':''}</w:rPr></w:pPr>`;}
+  function p(text,align='',bold=false){
+    const segs=String(text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').split('\n');
+    const runs=segs.flatMap((seg,i)=>{
+      const r=seg?`<w:r>${rp(bold)}<w:t xml:space="preserve">${seg}</w:t></w:r>`:'';
+      const br=i<segs.length-1?`<w:r>${rp(bold)}<w:br/></w:r>`:'';
+      return[r,br];
+    }).join('');
+    return `<w:p>${pp(align,bold)}${runs}</w:p>`;
+  }
+  function pLabel(text){
+    // First line bold (label), remaining lines normal (description)
+    const segs=String(text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').split('\n');
+    const runs=segs.flatMap((seg,i)=>{
+      const bold=(i===0);
+      const r=seg?`<w:r>${rp(bold)}<w:t xml:space="preserve">${seg}</w:t></w:r>`:'';
+      const br=i<segs.length-1?`<w:r>${rp(false)}<w:br/></w:r>`:'';
+      return[r,br];
+    }).join('');
+    return `<w:p>${pp()}${runs}</w:p>`;
+  }
+  const hdr1=`<w:tr>
+<w:tc><w:tcPr><w:tcW w:w="${W[0]}" w:type="dxa"/>${BD}<w:vMerge w:val="restart"/></w:tcPr>${p('(i)\nSr. No.','center',true)}</w:tc>
+<w:tc><w:tcPr><w:tcW w:w="${W[1]+W[2]}" w:type="dxa"/><w:gridSpan w:val="2"/>${BD}</w:tcPr>${p('Part I — Content of Paper Book','center',true)}</w:tc>
+<w:tc><w:tcPr><w:tcW w:w="${W[3]+W[4]}" w:type="dxa"/><w:gridSpan w:val="2"/>${BD}</w:tcPr>${p('Part II — Content of File Alone','center',true)}</w:tc>
+</w:tr>`;
+  const hdr2=`<w:tr>
+<w:tc><w:tcPr><w:tcW w:w="${W[0]}" w:type="dxa"/>${BD}<w:vMerge/></w:tcPr>${p('')}</w:tc>
+<w:tc><w:tcPr><w:tcW w:w="${W[1]}" w:type="dxa"/>${BD}</w:tcPr>${p('(ii) Description','center',true)}</w:tc>
+<w:tc><w:tcPr><w:tcW w:w="${W[2]}" w:type="dxa"/>${BD}</w:tcPr>${p('(iii) Pages','center',true)}</w:tc>
+<w:tc><w:tcPr><w:tcW w:w="${W[3]}" w:type="dxa"/>${BD}</w:tcPr>${p('(iv)','center',true)}</w:tc>
+<w:tc><w:tcPr><w:tcW w:w="${W[4]}" w:type="dxa"/>${BD}</w:tcPr>${p('(v) Pages','center',true)}</w:tc>
+</w:tr>`;
+  const dataRows=rows.map(row=>`<w:tr>
+<w:tc><w:tcPr><w:tcW w:w="${W[0]}" w:type="dxa"/>${BD}</w:tcPr>${p(String(row.sr),'center')}</w:tc>
+<w:tc><w:tcPr><w:tcW w:w="${W[1]}" w:type="dxa"/>${BD}</w:tcPr>${row.labelBold?pLabel(row.sub?'    '+row.desc:row.desc):p(row.sub?'    '+row.desc:row.desc)}</w:tc>
+<w:tc><w:tcPr><w:tcW w:w="${W[2]}" w:type="dxa"/>${BD}</w:tcPr>${p(row.pg1,'center')}</w:tc>
+<w:tc><w:tcPr><w:tcW w:w="${W[3]}" w:type="dxa"/>${BD}</w:tcPr>${p('')}</w:tc>
+<w:tc><w:tcPr><w:tcW w:w="${W[4]}" w:type="dxa"/>${BD}</w:tcPr>${p('')}</w:tc>
+</w:tr>`).join('');
+  const totalW=W.reduce((s,w)=>s+w,0);
+  const tbl=`<w:tbl>
+<w:tblPr><w:tblW w:w="${totalW}" w:type="dxa"/>
+<w:tblBorders>
+<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>
+<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>
+<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>
+<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>
+<w:insideH w:val="single" w:sz="4" w:space="0" w:color="000000"/>
+<w:insideV w:val="single" w:sz="4" w:space="0" w:color="000000"/>
+</w:tblBorders></w:tblPr>
+<w:tblGrid>${W.map(w=>`<w:gridCol w:w="${w}"/>`).join('')}</w:tblGrid>
+${hdr1}${hdr2}${dataRows}
+</w:tbl>`;
+  const body=[
+    p('INDEX','center',true),p(''),
+    tbl,p(''),
+    ...(advocate?[p(advocate,'right',true),p('Advocate for the Petitioner','right')]:[]),
+    `<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720" w:gutter="0"/></w:sectPr>`
+  ].join('');
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" mc:Ignorable="w14">
+<w:body>${body}</w:body>
+</w:document>`;
+}
+
+function buildZip(files){
+  const locals=[],cds=[];let offset=0;
+  for(const{name,data}of files){
+    const fn=new TextEncoder().encode(name);
+    const crc=crc32z(data);
+    const lh=new Uint8Array(30+fn.length);const lv=new DataView(lh.buffer);
+    lv.setUint32(0,0x04034b50,true);lv.setUint16(4,20,true);lv.setUint16(6,0,true);
+    lv.setUint16(8,0,true);lv.setUint16(10,0,true);lv.setUint16(12,0,true);
+    lv.setUint32(14,crc,true);lv.setUint32(18,data.length,true);lv.setUint32(22,data.length,true);
+    lv.setUint16(26,fn.length,true);lv.setUint16(28,0,true);lh.set(fn,30);
+    const cd=new Uint8Array(46+fn.length);const cv=new DataView(cd.buffer);
+    cv.setUint32(0,0x02014b50,true);cv.setUint16(4,20,true);cv.setUint16(6,20,true);
+    cv.setUint16(8,0,true);cv.setUint16(10,0,true);cv.setUint16(12,0,true);cv.setUint16(14,0,true);
+    cv.setUint32(16,crc,true);cv.setUint32(20,data.length,true);cv.setUint32(24,data.length,true);
+    cv.setUint16(28,fn.length,true);cv.setUint16(30,0,true);cv.setUint16(32,0,true);
+    cv.setUint16(34,0,true);cv.setUint16(36,0,true);cv.setUint32(38,0,true);cv.setUint32(42,offset,true);
+    cd.set(fn,46);
+    offset+=lh.length+data.length;locals.push(lh,data);cds.push(cd);
+  }
+  const cdOff=offset,cdSz=cds.reduce((s,c)=>s+c.length,0);
+  const eocd=new Uint8Array(22);const ev=new DataView(eocd.buffer);
+  ev.setUint32(0,0x06054b50,true);ev.setUint16(4,0,true);ev.setUint16(6,0,true);
+  ev.setUint16(8,files.length,true);ev.setUint16(10,files.length,true);
+  ev.setUint32(12,cdSz,true);ev.setUint32(16,cdOff,true);ev.setUint16(20,0,true);
+  const parts=[...locals,...cds,eocd];
+  const total=parts.reduce((s,p)=>s+p.length,0);
+  const out=new Uint8Array(total);let pos=0;
+  for(const p of parts){out.set(p,pos);pos+=p.length;}
+  return out;
+}
+function crc32z(data){
+  let c=0xFFFFFFFF;
+  for(const b of data){c^=b;for(let i=0;i<8;i++)c=(c>>>1)^(c&1?0xEDB88320:0);}
+  return(c^0xFFFFFFFF)>>>0;
+}
+</script>
+</body>
+</html>

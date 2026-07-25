@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SC Affidavit Generator — Supreme Court of India</title>
+<style>
+:root{
+  --ink:#1A2027; --paper:#F7F8FA; --panel:#F1F3F6; --card-alt:#EEF0F3;
+  --line:#E4E7EC; --primary:#1E2733; --on-primary:#EBF0F6; --nav-dim:#9AA7B8;
+  --accent:#2563EB; --accent-dark:#1D4ED8; --accent-bg:#EAF1FD;
+  --gold:#C39A52; --muted:#5A6472; --faint:#98A1AD;
+  --ok:#1F8A5F; --danger:#DC2626; --warn:#B45309; --warn-bg:#FEF3C7;
+  --font-ui:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',Helvetica,Arial,sans-serif;
+  --font-mono:Helvetica,Arial,sans-serif;
+  --font-doc:'Times New Roman',Times,serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{margin:0;padding:0;}
+body{font-family:var(--font-ui);background:var(--panel);color:var(--ink);font-size:13.5px;line-height:1.55;min-height:100vh;}
+::selection{background:#cfe0ff;color:#1A2027;}
+
+/* SITE HEADER */
+.site-header{background:var(--primary);color:var(--on-primary);position:sticky;top:0;z-index:40;}
+.site-header .inner{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px;padding:0 24px;}
+.site-header .left{display:flex;align-items:center;gap:12px;}
+.oc-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;}
+.oc-logo:hover{opacity:.85;}
+.oc-logo .mark{width:34px;height:34px;color:var(--on-primary);display:flex;align-items:center;justify-content:center;}
+.oc-logo .name{font-size:20px;font-weight:700;letter-spacing:-.01em;}
+.site-header .tag{font-size:11px;color:var(--nav-dim);border-left:1px solid rgba(255,255,255,.16);padding-left:12px;margin-left:4px;letter-spacing:.08em;text-transform:uppercase;font-family:var(--font-mono);}
+.site-header .right{display:flex;align-items:center;gap:20px;}
+.oc-nav{display:flex;align-items:center;gap:20px;font-size:13.5px;}
+.oc-nav a.oc-navlink{color:rgba(255,255,255,.72);text-decoration:none;white-space:nowrap;}
+.oc-nav a.oc-navlink:hover{color:#fff;}
+details.oc-tools{position:relative;}
+details.oc-tools>summary{list-style:none;outline:none;cursor:pointer;color:rgba(255,255,255,.72);display:inline-flex;align-items:center;gap:6px;white-space:nowrap;font-size:13.5px;}
+details.oc-tools>summary:hover{color:#fff;}
+details.oc-tools>summary::-webkit-details-marker{display:none;}
+details.oc-tools>summary .car{font-family:var(--font-mono);font-size:10px;}
+details.oc-tools[open]>summary .car{display:inline-block;transform:rotate(180deg);}
+details.oc-tools .menu{position:absolute;top:calc(100% + 14px);right:0;min-width:240px;background:#fff;border:1px solid rgba(0,0,0,.1);box-shadow:0 12px 34px rgba(0,0,0,.2);padding:6px;z-index:60;}
+details.oc-tools .menu a{display:block;padding:10px 12px;text-decoration:none;color:#1b2530;font-size:13.5px;}
+details.oc-tools .menu a:hover{background:rgba(0,0,0,.05);}
+details.oc-tools .menu a.current{font-weight:600;background:rgba(0,0,0,.05);}
+.oc-contact{display:inline-flex;align-items:center;text-decoration:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;padding:8px 16px;border:1.5px solid var(--accent);white-space:nowrap;}
+.oc-contact:hover{background:var(--accent-dark);border-color:var(--accent-dark);}
+
+/* APP SHELL */
+.app{max-width:1180px;margin:0 auto;padding:36px 24px 64px;}
+header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;border-bottom:2px solid var(--ink);padding-bottom:16px;margin-bottom:28px;}
+header.top .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:8px;}
+header.top h1{font-size:34px;margin:0;font-weight:500;letter-spacing:-.015em;line-height:1.05;}
+header.top h1 em{font-style:normal;color:var(--accent);}
+header.top .desc{font-size:13px;color:var(--muted);margin-top:8px;max-width:540px;line-height:1.6;}
+
+/* LAYOUT */
+.two-col{display:grid;grid-template-columns:420px 1fr;gap:24px;align-items:start;}
+@media(max-width:900px){.two-col{grid-template-columns:1fr;}}
+
+/* PANELS */
+.card{background:var(--paper);border:1px solid var(--line);margin-bottom:16px;}
+.ch{padding:10px 16px;background:var(--card-alt);border-bottom:1px solid var(--line);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;justify-content:space-between;font-family:var(--font-mono);}
+.cb{padding:18px 16px;display:flex;flex-direction:column;gap:12px;}
+
+/* FIELDS */
+.field{display:flex;flex-direction:column;gap:4px;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.field-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;}
+.hint{font-size:12px;color:var(--muted);line-height:1.5;}
+input[type="text"],select,textarea{width:100%;font-family:var(--font-ui);font-size:13.5px;padding:9px 11px;border:1.5px solid var(--line);background:#fff;color:var(--ink);outline:none;}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+textarea{resize:vertical;min-height:70px;line-height:1.5;font-size:13px;}
+.chk-row{display:flex;flex-wrap:wrap;gap:10px;}
+.chk-item{display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;color:var(--muted);letter-spacing:0;font-weight:400;}
+.chk-item input[type="checkbox"]{width:auto;accent-color:var(--accent);cursor:pointer;}
+.radio-row{display:flex;gap:16px;flex-wrap:wrap;}
+.radio-item{display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;color:var(--ink);font-weight:400;letter-spacing:0;text-transform:none;}
+.radio-item input[type="radio"]{width:auto;accent-color:var(--accent);cursor:pointer;}
+
+/* BUTTONS */
+.btn-gen{width:100%;background:var(--accent);color:#fff;border:1.5px solid var(--accent);padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-ui);letter-spacing:.03em;margin-top:4px;}
+.btn-gen:hover{background:var(--accent-dark);border-color:var(--accent-dark);}
+.btn-act{border:none;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-ui);}
+.btn-act.primary{background:var(--primary);color:#fff;}
+.btn-act.primary:hover{background:#2a3749;}
+.btn-act.sec{background:transparent;color:var(--ink);border:1.5px solid var(--line);}
+.btn-act.sec:hover{border-color:var(--ink);}
+
+/* OUTPUT */
+.out-card{background:var(--paper);border:1px solid var(--line);position:sticky;top:76px;}
+.out-tb{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--card-alt);border-bottom:1px solid var(--line);}
+.out-tb-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-family:var(--font-mono);}
+.out-actions{display:flex;gap:6px;}
+.placeholder{padding:60px 24px;text-align:center;color:var(--faint);}
+.placeholder p{font-size:12.5px;max-width:220px;margin:0 auto;line-height:1.6;}
+.index-actions{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:12px 16px;background:var(--card-alt);border:1px solid var(--line);border-top:none;}
+.index-actions-label{font-size:13px;font-weight:700;color:var(--ok);display:flex;align-items:center;gap:7px;}
+.index-actions-btns{display:flex;gap:8px;}
+
+/* AFFIDAVIT PREVIEW */
+#aff-preview{padding:28px 32px;font-family:'Times New Roman',Times,serif;font-size:14px;line-height:1.8;min-height:200px;}
+.aff-center{text-align:center;}
+.aff-bold{font-weight:bold;}
+.aff-uline{text-decoration:underline;}
+.aff-both{text-align:justify;}
+.aff-right{text-align:right;}
+.aff-para{margin-bottom:0;line-height:1.8;}
+.aff-para+.aff-para{margin-top:0;}
+.aff-gap{height:14px;}
+.aff-num-para{display:flex;gap:0;line-height:1.8;text-align:justify;}
+.aff-num-para .aff-num{min-width:36px;flex-shrink:0;font-family:'Times New Roman',Times,serif;}
+.aff-num-para .aff-body{flex:1;}
+.aff-party-line{display:flex;justify-content:space-between;font-family:'Times New Roman',Times,serif;font-size:14px;line-height:1.8;}
+
+/* FOOTER */
+.site-footer{border-top:1px solid var(--line);background:var(--card-alt);}
+.site-footer .inner{max-width:1180px;margin:0 auto;padding:20px 24px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--faint);}
+.site-footer .mono{font-family:var(--font-mono);}
+
+@media(max-width:760px){
+  .site-header .inner{flex-wrap:wrap;height:auto;row-gap:8px;padding-top:10px;padding-bottom:10px;}
+  header.top h1{font-size:26px;}
+}
+
+@media print{
+  .col-l,.site-header,.site-footer,.out-tb,.index-actions{display:none!important;}
+  .out-card{box-shadow:none;border:none;}
+  #aff-preview{padding:0;}
+  body{background:white;}
+}
+</style>
+</head>
+<body>
+
+<!-- AUTH OVERLAY -->
+<div id="auth-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--primary);display:flex;align-items:center;justify-content:center;">
+  <div style="background:var(--paper);padding:40px 48px;max-width:380px;width:90%;text-align:center;">
+    <div style="margin-bottom:20px;">
+      <svg viewBox="0 0 100 100" width="40" height="40" style="display:inline-block;color:var(--primary)"><rect x="12" y="12" width="76" height="76" rx="17" fill="none" stroke="currentColor" stroke-width="7"/><circle cx="40" cy="50" r="11" fill="none" stroke="currentColor" stroke-width="6"/><path d="M68 41 A11 11 0 1 0 68 59" fill="none" stroke="#C39A52" stroke-width="6" stroke-linecap="round"/></svg>
+    </div>
+    <div style="font-size:11px;font-family:var(--font-mono);letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">OneCourt</div>
+    <div style="font-size:20px;font-weight:700;margin-bottom:6px;color:var(--ink);">SC Affidavit Generator</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:28px;">Enter your access password to continue.</div>
+    <input type="password" id="auth-input" placeholder="Password"
+      style="width:100%;padding:11px 14px;border:1.5px solid var(--line);font-size:14px;font-family:var(--font-ui);margin-bottom:10px;outline:none;color:var(--ink);background:#fff;"
+      onkeydown="if(event.key==='Enter')checkAuth()">
+    <div id="auth-err" style="font-size:12px;color:var(--danger);min-height:18px;margin-bottom:10px;"></div>
+    <button onclick="checkAuth()"
+      style="width:100%;background:var(--primary);color:#fff;border:none;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-ui);">
+      Enter
+    </button>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="inner">
+    <div class="left">
+      <a class="oc-logo" href="https://onecourt.in">
+        <span class="mark"><svg viewBox="0 0 100 100" width="34" height="34"><rect x="12" y="12" width="76" height="76" rx="17" fill="none" stroke="currentColor" stroke-width="7"/><circle cx="40" cy="50" r="11" fill="none" stroke="currentColor" stroke-width="6"/><path d="M68 41 A11 11 0 1 0 68 59" fill="none" stroke="#C39A52" stroke-width="6" stroke-linecap="round"/></svg></span>
+        <span class="name">OneCourt</span>
+      </a>
+      <span class="tag">SC Affidavit</span>
+    </div>
+    <div class="right">
+      <nav class="oc-nav">
+        <a class="oc-navlink" href="https://onecourt.in/about-onecourt.html">Start Here</a>
+        <details class="oc-tools">
+          <summary>Tools for Lawyers <span class="car">▾</span></summary>
+          <div class="menu">
+            <a href="https://onecourt.in/Court_Holiday_Planner.html">Court Holiday Planner</a>
+            <a href="https://onecourt.in/vakalatnama-generator.html">Generate Vakalatnama</a>
+            <a href="/index.html">SLP Index Generator</a>
+            <a class="current" href="#">SC Affidavit Generator</a>
+            <a href="/case-status.html">Case Status</a>
+            <a href="https://onecourt.in/bare-acts">Bare Acts</a>
+            <a href="/nclat">NCLAT Cause List</a>
+          </div>
+        </details>
+      </nav>
+      <a class="oc-contact" href="https://onecourt.in/Contact%20Us.html">Feedback | Contact Us</a>
+    </div>
+  </div>
+</header>
+
+<div class="app">
+<header class="top">
+  <div>
+    <div class="eyebrow">Tools for Lawyers</div>
+    <h1>SC Affidavit <em>Generator</em></h1>
+    <div class="desc">Generate affidavits for SLPs and Civil/Criminal Appeals before the Supreme Court of India.</div>
+  </div>
+</header>
+
+<div class="two-col">
+
+  <!-- LEFT: FORM -->
+  <div class="col-l">
+
+    <!-- Case Details -->
+    <div class="card">
+      <div class="ch">Case Details</div>
+      <div class="cb">
+        <div class="field">
+          <label>Case Type</label>
+          <div class="radio-row" style="margin-top:4px;">
+            <label class="radio-item"><input type="radio" name="caseType" value="slp" checked onchange="caseTypeChanged()"> Special Leave Petition (SLP)</label>
+            <label class="radio-item"><input type="radio" name="caseType" value="civil-appeal" onchange="caseTypeChanged()"> Civil Appeal</label>
+            <label class="radio-item"><input type="radio" name="caseType" value="criminal-appeal" onchange="caseTypeChanged()"> Criminal Appeal</label>
+          </div>
+        </div>
+        <div class="field" id="row-nature">
+          <label>SLP Nature</label>
+          <div class="radio-row" style="margin-top:4px;">
+            <label class="radio-item"><input type="radio" name="caseNature" value="civil" checked onchange="refresh()"> Civil</label>
+            <label class="radio-item"><input type="radio" name="caseNature" value="criminal" onchange="refresh()"> Criminal</label>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Case Number <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+            <input type="text" id="caseNo" placeholder="e.g. 1234" oninput="refresh()">
+          </div>
+          <div class="field">
+            <label>Year <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+            <input type="text" id="caseYear" placeholder="e.g. 2025" oninput="refresh()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Parties -->
+    <div class="card">
+      <div class="ch">Parties</div>
+      <div class="cb">
+        <div class="field">
+          <label id="pet-label">Petitioner Name</label>
+          <input type="text" id="petitionerName" placeholder="Full name of petitioner / first petitioner" oninput="refresh()">
+        </div>
+        <div class="field">
+          <label id="pet-suffix-label">Additional Petitioners</label>
+          <select id="petitionerSuffix" onchange="refresh()">
+            <option value="">None — single petitioner</option>
+            <option value="&amp; Anr.">&amp; Anr. — two petitioners total</option>
+            <option value="&amp; Ors.">&amp; Ors. — three or more petitioners</option>
+          </select>
+        </div>
+        <div class="field" style="margin-top:6px;">
+          <label>Respondent Name</label>
+          <input type="text" id="respondentName" placeholder="Full name of respondent / first respondent" oninput="refresh()">
+        </div>
+        <div class="field">
+          <label>Additional Respondents</label>
+          <select id="respondentSuffix" onchange="refresh()">
+            <option value="">None — single respondent</option>
+            <option value="&amp; Anr.">&amp; Anr. — two respondents total</option>
+            <option value="&amp; Ors.">&amp; Ors. — three or more respondents</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Deponent -->
+    <div class="card">
+      <div class="ch">Deponent</div>
+      <div class="cb">
+        <div class="field-row">
+          <div class="field" style="grid-column:1/-1">
+            <label>Deponent's Full Name</label>
+            <input type="text" id="deponentName" placeholder="Full name as it will appear in affidavit" oninput="refresh()">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Relation</label>
+            <select id="deponentRelation" onchange="refresh()">
+              <option value="son of">Son of</option>
+              <option value="daughter of">Daughter of</option>
+              <option value="wife of">Wife of</option>
+              <option value="husband of">Husband of</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Father / Mother / Spouse Name</label>
+            <input type="text" id="deponentParent" placeholder="Name" oninput="refresh()">
+          </div>
+        </div>
+        <div class="field" style="max-width:160px;">
+          <label>Age (years)</label>
+          <input type="text" id="deponentAge" placeholder="e.g. 42" oninput="refresh()">
+        </div>
+        <div class="field">
+          <label>Deponent Type</label>
+          <div class="radio-row" style="margin-top:4px;">
+            <label class="radio-item"><input type="radio" name="deponentType" value="individual" checked onchange="deponentTypeChanged()"> Individual (party)</label>
+            <label class="radio-item"><input type="radio" name="deponentType" value="organization" onchange="deponentTypeChanged()"> Organisation representative</label>
+          </div>
+        </div>
+        <div id="row-address">
+          <div class="field">
+            <label>Residential Address</label>
+            <input type="text" id="deponentAddress" placeholder="Full residential address (r/o …)" oninput="refresh()">
+          </div>
+        </div>
+        <div id="row-org" style="display:none;display:flex;flex-direction:column;gap:12px;">
+          <div class="field">
+            <label>Designation</label>
+            <input type="text" id="deponentDesignation" placeholder="e.g. Director, Managing Director" oninput="refresh()">
+          </div>
+          <div class="field">
+            <label>Organisation Name</label>
+            <input type="text" id="deponentOrgName" placeholder="Full name of organisation" oninput="refresh()">
+          </div>
+          <div class="field">
+            <label>Office Address</label>
+            <input type="text" id="deponentOrgAddress" placeholder="Registered / principal office address" oninput="refresh()">
+          </div>
+        </div>
+        <div class="field">
+          <label>Position in Case <span style="font-weight:400;text-transform:none;letter-spacing:0">(para 1)</span></label>
+          <input type="text" id="deponentPosition" placeholder="e.g. Petitioner / Petitioner No. 1 / Appellant" oninput="refresh()">
+          <div class="hint" style="margin-top:4px;">Auto-filled — edit if deponent is not the first named party.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Page References -->
+    <div class="card">
+      <div class="ch">Page References <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px">(optional — leave blank to show blank lines)</span></div>
+      <div class="cb">
+        <div class="field">
+          <label>List of Dates — Last Page</label>
+          <input type="text" id="lodLastPage" placeholder="e.g. 12 (or leave blank)" oninput="refresh()">
+        </div>
+        <div class="field">
+          <label id="petLabel">Special Leave Petition — Paragraph Range</label>
+          <div class="field-row">
+            <input type="text" id="petParaStart" placeholder="From para (or leave blank)" oninput="refresh()">
+            <input type="text" id="petParaEnd" placeholder="To para (or leave blank)" oninput="refresh()">
+          </div>
+        </div>
+        <div class="field">
+          <label id="petPageLabel">Special Leave Petition — Page Range</label>
+          <div class="field-row">
+            <input type="text" id="petPageStart" placeholder="From page" oninput="refresh()">
+            <input type="text" id="petPageEnd" placeholder="To page" oninput="refresh()">
+          </div>
+        </div>
+        <div class="field">
+          <label>Grounds — Last Ground Letter</label>
+          <input type="text" id="groundsEnd" placeholder="e.g. F (or leave blank)" oninput="refresh()">
+        </div>
+        <div class="field">
+          <label class="chk-item" style="font-size:13px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--ink);">
+            <input type="checkbox" id="hasIAs" onchange="refresh()">
+            Include Interlocutory Applications in para 2
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Verification -->
+    <div class="card">
+      <div class="ch">Verification Details</div>
+      <div class="cb">
+        <div class="field">
+          <label>Place of Verification</label>
+          <input type="text" id="verifyPlace" placeholder="e.g. New Delhi" oninput="refresh()">
+        </div>
+        <div class="field-row3">
+          <div class="field">
+            <label>Day <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+            <input type="text" id="verifyDay" placeholder="e.g. 24" oninput="refresh()">
+          </div>
+          <div class="field">
+            <label>Month <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+            <input type="text" id="verifyMonth" placeholder="e.g. July" oninput="refresh()">
+          </div>
+          <div class="field">
+            <label>Year</label>
+            <input type="text" id="verifyYear" placeholder="e.g. 2025" value="2025" oninput="refresh()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-gen" onclick="generate()">Preview &amp; Generate Affidavit</button>
+
+  </div><!-- /col-l -->
+
+  <!-- RIGHT: PREVIEW -->
+  <div class="col-r">
+    <div class="out-card" id="out-card">
+      <div class="out-tb">
+        <span class="out-tb-title">Affidavit Preview</span>
+        <div class="out-actions" id="out-actions" style="display:none;">
+          <button class="btn-act sec" onclick="copyAff()">Copy Text</button>
+          <button class="btn-act primary" onclick="downloadDocx()">Download .docx</button>
+        </div>
+      </div>
+      <div id="aff-preview">
+        <div class="placeholder">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect x="6" y="4" width="28" height="32" rx="2" stroke="#C8CDD4" stroke-width="1.5"/><line x1="12" y1="13" x2="28" y2="13" stroke="#C8CDD4" stroke-width="1.5"/><line x1="12" y1="19" x2="28" y2="19" stroke="#C8CDD4" stroke-width="1.5"/><line x1="12" y1="25" x2="22" y2="25" stroke="#C8CDD4" stroke-width="1.5"/></svg>
+          <p>Fill in the form and click "Preview &amp; Generate Affidavit" to see the result here.</p>
+        </div>
+      </div>
+    </div>
+    <div class="index-actions" id="dl-bar" style="display:none;">
+      <div class="index-actions-label">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#1F8A5F" stroke-width="1.3"/><path d="M5 8l2.5 2.5L11 5.5" stroke="#1F8A5F" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Affidavit ready
+      </div>
+      <div class="index-actions-btns">
+        <button class="btn-act sec" onclick="copyAff()">Copy Text</button>
+        <button class="btn-act primary" onclick="downloadDocx()">Download .docx</button>
+      </div>
+    </div>
+  </div><!-- /col-r -->
+
+</div><!-- /two-col -->
+</div><!-- /app -->
+
+<footer class="site-footer">
+  <div class="inner">
+    <span>© 2025 <a href="https://onecourt.in" style="color:inherit;text-decoration:none;">OneCourt</a> · Built for Indian lawyers</span>
+    <span class="mono">SC Affidavit Generator</span>
+  </div>
+</footer>
+
+<script>
+// ── AUTH ──────────────────────────────────────────────────────────────
+(function(){
+  const overlay = document.getElementById('auth-overlay');
+  if(sessionStorage.getItem('oc-slp-auth') === '1'){overlay.style.display = 'none';}
+  else{overlay.style.display = 'flex';}
+})();
+function checkAuth(){
+  const pwd = document.getElementById('auth-input').value;
+  if(pwd === 'SLP@9kTm'){
+    sessionStorage.setItem('oc-slp-auth','1');
+    document.getElementById('auth-overlay').style.display = 'none';
+  } else {
+    document.getElementById('auth-err').textContent = 'Incorrect password. Try again.';
+    document.getElementById('auth-input').value = '';
+    document.getElementById('auth-input').focus();
+  }
+}
+
+// ── UI DYNAMICS ───────────────────────────────────────────────────────
+function caseTypeChanged(){
+  const ct = getCaseType();
+  document.getElementById('row-nature').style.display = ct === 'slp' ? '' : 'none';
+  const pl = ct === 'slp' ? 'Petitioner' : 'Appellant';
+  document.getElementById('pet-label').textContent = `${pl} Name`;
+  document.getElementById('pet-suffix-label').textContent = `Additional ${pl}s`;
+  // Update page ref labels
+  const ptLabel = ct === 'slp' ? 'Special Leave Petition' : ct === 'civil-appeal' ? 'Civil Appeal' : 'Criminal Appeal';
+  document.getElementById('petLabel').textContent = `${ptLabel} — Paragraph Range`;
+  document.getElementById('petPageLabel').textContent = `${ptLabel} — Page Range`;
+  autoFillPosition();
+  refresh();
+}
+
+function deponentTypeChanged(){
+  const isOrg = getRadio('deponentType') === 'organization';
+  document.getElementById('row-address').style.display = isOrg ? 'none' : '';
+  document.getElementById('row-org').style.display = isOrg ? 'flex' : 'none';
+  refresh();
+}
+
+function autoFillPosition(){
+  const ct = getCaseType();
+  const role = ct === 'slp' ? 'Petitioner' : 'Appellant';
+  const suffix = document.getElementById('petitionerSuffix').value;
+  let pos = role;
+  if(suffix) pos = `${role} No. 1`;
+  const el = document.getElementById('deponentPosition');
+  // Only auto-fill if it looks like we set it before (matches a pattern we'd generate)
+  const cur = el.value.trim();
+  const autoVals = ['Petitioner','Petitioner No. 1','Appellant','Appellant No. 1'];
+  if(!cur || autoVals.includes(cur)) el.value = pos;
+}
+
+// ── GETTERS ───────────────────────────────────────────────────────────
+function v(id){ return (document.getElementById(id) || {}).value?.trim() || ''; }
+function getCaseType(){ return getRadio('caseType') || 'slp'; }
+function getRadio(name){ const el = document.querySelector(`input[name="${name}"]:checked`); return el ? el.value : ''; }
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function ordinalSuffix(n){ const num=parseInt(n,10); if(isNaN(num)) return ''; const j=num%10,k=num%100; if(j===1&&k!==11) return 'st'; if(j===2&&k!==12) return 'nd'; if(j===3&&k!==13) return 'rd'; return 'th'; }
+function toMonthName(m){ if(!m) return ''; const months=['January','February','March','April','May','June','July','August','September','October','November','December']; const num=parseInt(m,10); if(!isNaN(num)&&num>=1&&num<=12) return months[num-1]; return m; }
+
+function getFields(){
+  const ct = getCaseType();
+  const nature = getRadio('caseNature') || 'civil';
+  const isOrg = getRadio('deponentType') === 'organization';
+  const petSuffix = document.getElementById('petitionerSuffix').value;
+  const resSuffix = document.getElementById('respondentSuffix').value;
+  const roleBase = ct === 'slp' ? 'Petitioner' : 'Appellant';
+  const roleLabel = petSuffix ? roleBase + 's' : roleBase;
+  const petitionLabel = ct === 'slp' ? 'petition' : 'appeal';
+  const petitionFull = ct === 'slp' ? 'Special Leave Petition'
+    : ct === 'civil-appeal' ? 'Civil Appeal' : 'Criminal Appeal';
+  const jurisdiction = (ct === 'criminal-appeal' || (ct === 'slp' && nature === 'criminal'))
+    ? 'CRIMINAL APPELLATE JURISDICTION' : 'CIVIL APPELLATE JURISDICTION';
+
+  let caseRef;
+  if(ct === 'slp'){
+    const nat = nature === 'criminal' ? 'CRIMINAL' : 'CIVIL';
+    const no = v('caseNo') || '     ';
+    const yr = v('caseYear') || '20__';
+    caseRef = `SPECIAL LEAVE PETITION (${nat}) NO. ${no} / ${yr}`;
+  } else if(ct === 'civil-appeal'){
+    caseRef = `CIVIL APPEAL NO. ${v('caseNo') || '     '} / ${v('caseYear') || '20__'}`;
+  } else {
+    caseRef = `CRIMINAL APPEAL NO. ${v('caseNo') || '     '} / ${v('caseYear') || '20__'}`;
+  }
+
+  let addressPart;
+  if(isOrg){
+    const desig = v('deponentDesignation') || '[Designation]';
+    const org = v('deponentOrgName') || '[Organisation]';
+    const addr = v('deponentOrgAddress') || '[Office Address]';
+    addressPart = `working as ${desig} at ${org} having office at ${addr}`;
+  } else {
+    addressPart = `r/o ${v('deponentAddress') || '[Address]'}`;
+  }
+
+  const deponentPos = v('deponentPosition') || roleBase;
+  const lodLast = v('lodLastPage');
+  const paraStart = v('petParaStart');
+  const paraEnd = v('petParaEnd');
+  const pageStart = v('petPageStart');
+  const pageEnd = v('petPageEnd');
+  const groundsEnd = v('groundsEnd');
+  const hasIAs = document.getElementById('hasIAs').checked;
+
+  // Para 2 page reference text
+  const lodRef = `List of Dates B to ${lodLast || '___'}`;
+  const paraRef = `${petitionFull} Paragraphs ${paraStart || '___'} to ${paraEnd || '___'} (Pages ${pageStart || '___'} to ${pageEnd || '___'})`;
+  const groundsRef = `Grounds A to ${groundsEnd || '___'}`;
+  const iaRef = hasIAs ? ' and Interlocutory Applications' : '';
+  const orgExtra = isOrg ? ` and record maintained by ${deponentPos}` : '';
+
+  const verDay = v('verifyDay');
+  const verMonth = v('verifyMonth');
+  const verYear = v('verifyYear') || '202__';
+  const verPlace = v('verifyPlace') || '[Place]';
+  const verMonthFull = toMonthName(verMonth);
+  const verDateStr = verDay
+    ? `${verDay}${ordinalSuffix(verDay)} day of ${verMonthFull || '___'}, ${verYear}`
+    : `___ day of ${verMonthFull || '___'}, ${verYear}`;
+
+  return {
+    ct, nature, isOrg, petSuffix, resSuffix, roleBase, roleLabel,
+    petitionLabel, petitionFull, jurisdiction, caseRef,
+    petitionerName: v('petitionerName') || '[Petitioner Name]',
+    respondentName: v('respondentName') || '[Respondent Name]',
+    deponentName: v('deponentName') || '[Deponent Name]',
+    deponentRelation: v('deponentRelation') || 'son of',
+    deponentParent: v('deponentParent') || '[Parent/Spouse Name]',
+    deponentAge: v('deponentAge') || '___',
+    addressPart, deponentPos,
+    lodRef, paraRef, groundsRef, iaRef, orgExtra,
+    petitionFull, petitionLabel,
+    verPlace, verDay, verDateStr, verYear,
+    verMonth, verMonthFull
+  };
+}
+
+// ── PREVIEW ───────────────────────────────────────────────────────────
+function refresh(){ /* live update on keypress - no-op until generate clicked */ }
+
+function generate(){
+  const f = getFields();
+  autoFillPosition();
+  const preview = document.getElementById('aff-preview');
+  const petLine = esc(f.petitionerName) + (f.petSuffix ? ` ${esc(f.petSuffix)}` : '');
+  const resLine = esc(f.respondentName) + (f.resSuffix ? ` ${esc(f.resSuffix)}` : '');
+
+  const para1 = `That I am ${esc(f.deponentPos)} in the above ${esc(f.petitionLabel)} and as such I am fully conversant with the facts and circumstances of this case, hence competent to swear this affidavit.`;
+  const para2 = `That I have gone through the contents of accompanying ${esc(f.lodRef)}, ${esc(f.paraRef)}, ${esc(f.groundsRef)}${esc(f.iaRef)} and they are true and correct to the best of my knowledge${esc(f.orgExtra)} and no part of it is false and nothing material has been concealed there from. The contents of the ${esc(f.petitionFull)} have been explained to me, which I fully understood.`;
+  const para3 = `That the annexures, if any are the true copies of the respective originals and are essential parts of the records.`;
+  const para4 = `I state that the facts stated in Synopsis, List of Dates and ${esc(f.petitionFull)} are based on the instructions given to the Advocate-on-Record. I stated that to the best of my knowledge I have not filed any other ${esc(f.petitionLabel)} being aggrieved by the impugned order.`;
+  const para5 = `That the facts stated above affidavit are true and correct and no material has been concealed there from.`;
+  const openingText = `I, ${esc(f.deponentName)}, ${esc(f.deponentRelation)} ${esc(f.deponentParent)}, aged about ${esc(f.deponentAge)} years, ${esc(f.addressPart)}, hereby solemnly affirm and state and oath as follows:`;
+  const daySuffix = f.verDay ? ordinalSuffix(f.verDay) : '';
+  const verifyLine = f.verDay
+    ? `Verified at ${esc(f.verPlace)} on this the ${esc(f.verDay)}<sup>${daySuffix}</sup> day of ${esc(f.verMonthFull || '___')}, ${esc(f.verYear)}.`
+    : `Verified at ${esc(f.verPlace)} on this the ___ day of ${esc(f.verMonthFull || '___')}, ${esc(f.verYear)}.`;
+  const verifyBodyText = `I deponent above-named state that this is my name and signature, and what is stated in paragraphs 1 to 5 are true and correct as of my knowledge and belief. No material facts have been concealed.`;
+
+  preview.innerHTML = `
+    <p class="aff-para aff-center aff-bold">${esc("IN THE HON'BLE SUPREME COURT OF INDIA")}</p>
+    <p class="aff-para aff-center">${esc(f.jurisdiction)}</p>
+    <p class="aff-para aff-center">${esc(f.caseRef)}</p>
+    <div class="aff-gap"></div>
+    <p class="aff-para aff-both"><span class="aff-bold aff-uline">IN THE MATTER OF</span>:</p>
+    <div class="aff-party-line">
+      <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%">${petLine}</span>
+      <span style="white-space:nowrap">…${esc(f.roleLabel)}</span>
+    </div>
+    <p class="aff-para aff-center">versus</p>
+    <div class="aff-party-line">
+      <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%">${resLine}</span>
+      <span style="white-space:nowrap">…Respondent${f.resSuffix ? 's' : ''}</span>
+    </div>
+    <div class="aff-gap"></div>
+    <p class="aff-para aff-center aff-bold" style="font-size:16px;">AFFIDAVIT</p>
+    <div class="aff-gap"></div>
+    <p class="aff-para aff-both">${openingText}</p>
+    <div class="aff-num-para"><span class="aff-num">1.</span><span class="aff-body">${para1}</span></div>
+    <div class="aff-num-para"><span class="aff-num">2.</span><span class="aff-body">${para2}</span></div>
+    <div class="aff-num-para"><span class="aff-num">3.</span><span class="aff-body">${para3}</span></div>
+    <div class="aff-num-para"><span class="aff-num">4.</span><span class="aff-body">${para4}</span></div>
+    <div class="aff-num-para"><span class="aff-num">5.</span><span class="aff-body">${para5}</span></div>
+    <div class="aff-gap"></div>
+    <p class="aff-para aff-both">${verifyLine}</p>
+    <div class="aff-gap"></div>
+    <p class="aff-para aff-right aff-bold">DEPONENT</p>
+    <div class="aff-gap"></div>
+    <p class="aff-para aff-center aff-bold">VERIFICATION</p>
+    <p class="aff-para aff-both">${verifyBodyText}</p>
+    <p class="aff-para">Place: ${esc(f.verPlace)}</p>
+    <p class="aff-para">Date: ${f.verDay ? esc(f.verDay + (f.verMonth ? ' ' + f.verMonth : '') + ', ' + f.verYear) : ''}</p>
+    <div class="aff-gap"></div>
+    <p class="aff-para aff-right aff-bold">DEPONENT</p>
+  `;
+
+  document.getElementById('out-actions').style.display = 'flex';
+  document.getElementById('dl-bar').style.display = 'flex';
+  document.getElementById('out-card').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ── COPY ──────────────────────────────────────────────────────────────
+function copyAff(){
+  const el = document.getElementById('aff-preview');
+  if(!el) return;
+  navigator.clipboard.writeText(el.innerText).then(()=>{
+    const btn = event.target;
+    btn.textContent = 'Copied!';
+    setTimeout(()=>btn.textContent = 'Copy Text', 1800);
+  });
+}
+
+// ── DOCX GENERATION ───────────────────────────────────────────────────
+function downloadDocx(){
+  const f = getFields();
+  const xml = buildAffidavitDocXml(f);
+  const te = new TextEncoder();
+  const zipFiles = [
+    {name:'[Content_Types].xml', data: te.encode(DOCX_CT)},
+    {name:'_rels/.rels',         data: te.encode(DOCX_RELS)},
+    {name:'word/_rels/document.xml.rels', data: te.encode(DOCX_WORD_RELS)},
+    {name:'word/document.xml',   data: te.encode(xml)},
+  ];
+  const zip = buildZip(zipFiles);
+  const blob = new Blob([zip], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+  const a = Object.assign(document.createElement('a'), {href: URL.createObjectURL(blob), download: 'SC_Affidavit.docx'});
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(a.href);
+}
+
+function buildAffidavitDocXml(f){
+  const xmlEsc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const rFonts = '<w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>';
+  const sz = '<w:sz w:val="28"/><w:szCs w:val="28"/>';
+
+  function rpr(bold, uline, sup){
+    return `<w:rPr>${rFonts}${sz}${bold?'<w:b/>':''}${uline?'<w:u w:val="single"/>':''}${sup?'<w:vertAlign w:val="superscript"/>':''}</w:rPr>`;
+  }
+  // before/after in twips (20 per point); pass null to omit
+  function ppr(align, bold, indLeft, indHang, before, after){
+    const jc = align ? `<w:jc w:val="${align}"/>` : '';
+    const ind = (indLeft||indHang) ? `<w:ind w:left="${indLeft||0}"${indHang?` w:hanging="${indHang}"`:''}/>` : '';
+    let sp = `<w:spacing w:line="360" w:lineRule="auto"`;
+    if(before != null) sp += ` w:before="${before}"`;
+    if(after  != null) sp += ` w:after="${after}"`;
+    sp += '/>';
+    return `<w:pPr>${sp}${jc}${ind}<w:rPr>${rFonts}${sz}${bold?'<w:b/>':''}</w:rPr></w:pPr>`;
+  }
+  function run(text, bold, uline, sup){
+    if(text == null || text === '') return '';
+    return `<w:r>${rpr(bold,uline,sup)}<w:t xml:space="preserve">${xmlEsc(text)}</w:t></w:r>`;
+  }
+  function p(text, align, bold, uline, before, after){
+    return `<w:p>${ppr(align||'',bold||false,0,0,before,after)}${run(text,bold,uline)}</w:p>`;
+  }
+  // Empty paragraph with zero after-spacing so stacked blanks don't balloon
+  function emptyP(){
+    return `<w:p><w:pPr><w:spacing w:line="360" w:lineRule="auto" w:before="0" w:after="0"/><w:rPr>${rFonts}${sz}</w:rPr></w:pPr></w:p>`;
+  }
+  function numP(num, text){
+    return `<w:p>${ppr('both',false,720,720,null,0)}${run(num+'.\t')}${run(text)}</w:p>`;
+  }
+  function mixedP(runs, align){
+    return `<w:p>${ppr(align||'both',false,0,0,null,0)}${runs}</w:p>`;
+  }
+
+  // Borderless two-column table for party lines: name left, role right
+  // Usable width: 11906 - 2268(left) - 1410(right) = 8228 twips
+  const PAGE_W = 8228, COL_NAME = 5700, COL_ROLE = PAGE_W - COL_NAME;
+  const NB = `<w:top w:val="none" w:sz="0" w:space="0" w:color="auto"/><w:left w:val="none" w:sz="0" w:space="0" w:color="auto"/><w:bottom w:val="none" w:sz="0" w:space="0" w:color="auto"/><w:right w:val="none" w:sz="0" w:space="0" w:color="auto"/>`;
+  function partyTable(nameText, roleText){
+    const namePar = `<w:p>${ppr('left',false,0,0,0,0)}${run(nameText)}</w:p>`;
+    const rolePar = `<w:p>${ppr('right',false,0,0,0,0)}${run('…'+roleText)}</w:p>`;
+    return `<w:tbl><w:tblPr><w:tblW w:w="${PAGE_W}" w:type="dxa"/><w:tblBorders>${NB}<w:insideH w:val="none" w:sz="0" w:space="0" w:color="auto"/><w:insideV w:val="none" w:sz="0" w:space="0" w:color="auto"/></w:tblBorders><w:tblCellMar><w:top w:w="0" w:type="dxa"/><w:left w:w="0" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="0" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid><w:gridCol w:w="${COL_NAME}"/><w:gridCol w:w="${COL_ROLE}"/></w:tblGrid><w:tr><w:tc><w:tcPr><w:tcW w:w="${COL_NAME}" w:type="dxa"/><w:tcBorders>${NB}</w:tcBorders></w:tcPr>${namePar}</w:tc><w:tc><w:tcPr><w:tcW w:w="${COL_ROLE}" w:type="dxa"/><w:tcBorders>${NB}</w:tcBorders></w:tcPr>${rolePar}</w:tc></w:tr></w:tbl>`;
+  }
+
+  const petName = f.petitionerName + (f.petSuffix ? ' ' + f.petSuffix : '');
+  const resName = f.respondentName + (f.resSuffix ? ' ' + f.resSuffix : '');
+  const resLabel = 'Respondent' + (f.resSuffix ? 's' : '');
+
+  const openingText = `I, ${f.deponentName}, ${f.deponentRelation} ${f.deponentParent}, aged about ${f.deponentAge} years, ${f.addressPart}, hereby solemnly affirm and state and oath as follows:`;
+  const para1 = `That I am ${f.deponentPos} in the above ${f.petitionLabel} and as such I am fully conversant with the facts and circumstances of this case, hence competent to swear this affidavit.`;
+  const para2 = `That I have gone through the contents of accompanying ${f.lodRef}, ${f.paraRef}, ${f.groundsRef}${f.iaRef} and they are true and correct to the best of my knowledge${f.orgExtra} and no part of it is false and nothing material has been concealed there from. The contents of the ${f.petitionFull} have been explained to me, which I fully understood.`;
+  const para3 = `That the annexures, if any are the true copies of the respective originals and are essential parts of the records.`;
+  const para4 = `I state that the facts stated in Synopsis, List of Dates and ${f.petitionFull} are based on the instructions given to the Advocate-on-Record. I stated that to the best of my knowledge I have not filed any other ${f.petitionLabel} being aggrieved by the impugned order.`;
+  const para5 = `That the facts stated above affidavit are true and correct and no material has been concealed there from.`;
+  const verifyBodyText = `I deponent above-named state that this is my name and signature, and what is stated in paragraphs 1 to 5 are true and correct as of my knowledge and belief. No material facts have been concealed.`;
+  const verDaySuffix = f.verDay ? ordinalSuffix(f.verDay) : '';
+  const verMonthDocx = f.verMonthFull || f.verMonth || '';
+  const dateLineText = f.verDay ? `${f.verDay}${verDaySuffix}${verMonthDocx?' '+verMonthDocx:''}, ${f.verYear}` : '';
+  const verifyLineRuns = f.verDay
+    ? run(`Verified at ${f.verPlace} on this the ${f.verDay}`) + run(verDaySuffix, false, false, true) + run(` day of ${verMonthDocx || '___'}, ${f.verYear}.`)
+    : run(`Verified at ${f.verPlace} on this the ___ day of ${verMonthDocx || '___'}, ${f.verYear}.`);
+
+  const body = [
+    // ── Case header ──────────────────────────────────────────
+    p("IN THE HON'BLE SUPREME COURT OF INDIA", 'center', true,  false, null, 0),
+    p(f.jurisdiction, 'center', false, false, null, 0),
+    p(f.caseRef, 'center', false, false, null, 0),
+    emptyP(),
+    // ── Parties ──────────────────────────────────────────────
+    mixedP(run('IN THE MATTER OF', true, true) + run(':', true, false), 'both'),
+    partyTable(petName, f.roleLabel),
+    p('versus', 'center', false, false, 0, 0),
+    partyTable(resName, resLabel),
+    emptyP(),
+    // ── AFFIDAVIT ─────────────────────────────────────────────
+    p('AFFIDAVIT', 'center', true, false, null, null),
+    emptyP(),
+    p(openingText, 'both', false, false, null, 0),
+    numP(1, para1),
+    numP(2, para2),
+    numP(3, para3),
+    numP(4, para4),
+    numP(5, para5),
+    emptyP(),
+    // ── Verification ─────────────────────────────────────────
+    mixedP(verifyLineRuns, 'both'),
+    emptyP(),
+    p('DEPONENT', 'right', true, false, null, 0),
+    emptyP(),
+    p('VERIFICATION', 'center', true, false, null, 0),
+    emptyP(),
+    p(verifyBodyText, 'both', false, false, null, 0),
+    p('Place: ' + f.verPlace, 'left', false, false, null, 0),
+    p('Date: ' + dateLineText, 'left', false, false, null, 0),
+    emptyP(),
+    p('DEPONENT', 'right', true),
+    `<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1410" w:bottom="1134" w:left="2268" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr>`
+  ].join('');
+
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" mc:Ignorable="w14">
+<w:body>${body}</w:body>
+</w:document>`;
+}
+
+// ── ZIP / DOCX BOILERPLATE (shared with index generator) ──────────────
+const DOCX_CT = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+<Default Extension="xml" ContentType="application/xml"/>
+<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+</Types>`;
+const DOCX_RELS = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`;
+const DOCX_WORD_RELS = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+</Relationships>`;
+
+function buildZip(files){
+  const locals=[], cds=[];
+  let offset = 0;
+  for(const {name, data} of files){
+    const fn = new TextEncoder().encode(name);
+    const crc = crc32z(data);
+    const lh = new Uint8Array(30 + fn.length);
+    const lv = new DataView(lh.buffer);
+    lv.setUint32(0, 0x04034b50, true); lv.setUint16(4, 20, true);
+    lv.setUint32(14, crc, true); lv.setUint32(18, data.length, true); lv.setUint32(22, data.length, true);
+    lv.setUint16(26, fn.length, true); lh.set(fn, 30);
+    const cd = new Uint8Array(46 + fn.length);
+    const cv = new DataView(cd.buffer);
+    cv.setUint32(0, 0x02014b50, true); cv.setUint16(4, 20, true); cv.setUint16(6, 20, true);
+    cv.setUint32(16, crc, true); cv.setUint32(20, data.length, true); cv.setUint32(24, data.length, true);
+    cv.setUint16(28, fn.length, true); cv.setUint32(42, offset, true); cd.set(fn, 46);
+    offset += lh.length + data.length;
+    locals.push(lh, data); cds.push(cd);
+  }
+  const cdOff = offset, cdSz = cds.reduce((s,c)=>s+c.length, 0);
+  const eocd = new Uint8Array(22); const ev = new DataView(eocd.buffer);
+  ev.setUint32(0, 0x06054b50, true);
+  ev.setUint16(8, files.length, true); ev.setUint16(10, files.length, true);
+  ev.setUint32(12, cdSz, true); ev.setUint32(16, cdOff, true);
+  const parts = [...locals, ...cds, eocd];
+  const total = parts.reduce((s,p)=>s+p.length, 0);
+  const out = new Uint8Array(total); let pos = 0;
+  for(const p of parts){ out.set(p, pos); pos += p.length; }
+  return out;
+}
+function crc32z(data){
+  let c = 0xFFFFFFFF;
+  for(const b of data){ c ^= b; for(let i=0;i<8;i++) c = (c>>>1)^(c&1?0xEDB88320:0); }
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────
+caseTypeChanged();
+</script>
+</body>
+</html>
