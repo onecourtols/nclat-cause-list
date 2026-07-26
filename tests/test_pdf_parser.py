@@ -10,9 +10,9 @@ pdfplumber sometimes injects a spurious 3rd empty column into the left table
 return False and skip the merge — leaving items with only sno + case_no and
 no parties or counsel.
 
-Run:
-    pip install pytest
-    pytest tests/test_pdf_parser.py -v
+Run from the nclat/ directory:
+    python3 -m pip install pytest
+    python3 -m pytest tests/test_pdf_parser.py -v
 """
 import pytest
 from unittest.mock import MagicMock, patch
