@@ -102,10 +102,10 @@ def _detect_col_keys(data_rows: List[List], num_cols: int) -> List[str]:
             col_keys[i] = "case_no"
             break
 
-    # Last 2 cols → counsel (one per side — wider tables have extra empty middle cols)
-    if num_cols >= 2:
+    # Last 2 cols → counsel (only if not already identified as something else)
+    if num_cols >= 2 and not col_keys[num_cols - 1]:
         col_keys[num_cols - 1] = "counsel_respondent"
-    if num_cols >= 3:
+    if num_cols >= 3 and not col_keys[num_cols - 2]:
         col_keys[num_cols - 2] = "counsel_appellant"
 
     # ALL middle cols (between case_no and counsel) → parties
