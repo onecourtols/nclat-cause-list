@@ -269,6 +269,14 @@ def sci_search():
 if __name__ == "__main__":
     init_db()
     _init_scheduler()
+
+    # If DB is empty (e.g. after a fresh deploy), kick off a scrape immediately
+    if not get_available_dates():
+        import threading
+        from scraper import run_scrape
+        logger.info("DB empty on startup — running initial scrape in background")
+        threading.Thread(target=run_scrape, daemon=True).start()
+
     port = int(os.environ.get("PORT", 5001))
     debug = os.environ.get("FLASK_DEBUG", "0") == "1"
     logger.info("Starting NCLAT Cause List server on port %d", port)
