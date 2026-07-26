@@ -113,7 +113,6 @@ header.top .desc{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.
 .tab-btn[data-court="court_iv"]   {--tab-color:#00695C;--tab-bg:#E0F2F1;}
 .tab-btn[data-court="chennai"]    {--tab-color:#1A6B52;--tab-bg:#EAF5EF;}
 .tab-btn[data-court="registrar"]  {--tab-color:#4527A0;--tab-bg:#EDE7F6;}
-.tab-btn[data-court="case-status"]{border-left:2px solid var(--line);--tab-color:var(--gold);--tab-bg:var(--gold-bg);}
 
 .tab-label{font-size:13px;font-weight:600;}
 .tab-city{font-size:10px;font-family:var(--font-mono);letter-spacing:.04em;opacity:.65;}
@@ -165,33 +164,6 @@ td.parties{font-weight:600;max-width:340px;font-size:13px;}
 td.counsel{color:var(--muted);max-width:200px;font-size:12.5px;}
 mark{background:#FDE68A;color:inherit;padding:0 1px;}
 
-/* ── SC CASE STATUS TAB ──────────────────────────────────────── */
-.cs-panel{padding:20px;}
-.cs-grid{display:grid;grid-template-columns:320px 1fr;gap:20px;align-items:start;}
-.cs-card{background:var(--paper);border:1px solid var(--line);margin-bottom:12px;}
-.cs-ch{padding:9px 14px;background:var(--card-alt);border-bottom:1px solid var(--line);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-family:var(--font-mono);display:flex;align-items:center;justify-content:space-between;}
-.cs-cb{padding:14px;display:flex;flex-direction:column;gap:10px;}
-.cs-lbl{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:4px;}
-.cs-skel{width:140px;height:52px;background:var(--panel);border:1px solid var(--line);animation:ske 1.2s ease-in-out infinite;}
-@keyframes ske{0%,100%{opacity:.6}50%{opacity:1}}
-.cs-capt-status{font-size:11.5px;color:var(--muted);min-height:16px;}
-.cs-capt-wrap{display:flex;align-items:center;gap:10px;}
-.cs-capt-img{max-height:52px;border:1px solid var(--line);}
-.cs-btn-sm{background:none;border:1.5px solid var(--line);padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font-ui);color:var(--muted);}
-.cs-btn-sm:hover{border-color:var(--ink);color:var(--ink);}
-.cs-btn{width:100%;background:var(--accent);color:#fff;border:none;padding:11px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:var(--font-ui);}
-.cs-btn:hover:not(:disabled){background:var(--accent-dark);}
-.cs-btn:disabled{opacity:.5;cursor:not-allowed;}
-.cs-results-out{background:var(--paper);border:1px solid var(--line);}
-.cs-results-hd{padding:9px 14px;background:var(--card-alt);border-bottom:1px solid var(--line);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-family:var(--font-mono);}
-.cs-results-body{padding:20px;min-height:220px;}
-.cs-ph{color:var(--muted);font-size:13px;text-align:center;padding:40px 0;}
-.cs-results-body table{width:100%;border-collapse:collapse;font-size:13px;}
-.cs-results-body th{background:var(--primary);color:rgba(255,255,255,.58);font-size:9.5px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.12em;padding:8px 10px;text-align:left;border-bottom:none;}
-.cs-results-body td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;word-break:break-word;}
-.cs-results-body tr:last-child td{border-bottom:none;}
-.cs-results-body tr:hover td{background:var(--accent-bg);}
-
 /* ── FOOTER ──────────────────────────────────────────────────── */
 .site-footer{border-top:1px solid var(--line);padding:18px 24px;text-align:center;font-size:11.5px;color:var(--muted);}
 .site-footer a{color:var(--muted);text-decoration:none;}
@@ -204,7 +176,6 @@ mark{background:#FDE68A;color:inherit;padding:0 1px;}
   td.counsel{display:none;}
   header.top{flex-direction:column;align-items:flex-start;}
   .header-right{align-items:flex-start;}
-  .cs-grid{grid-template-columns:1fr;}
 }
 </style>
 </head>
@@ -248,9 +219,6 @@ mark{background:#FDE68A;color:inherit;padding:0 1px;}
           <div class="menu">
             <a href="https://onecourt.in/Court_Holiday_Planner.html">Court Holiday Planner</a>
             <a href="https://onecourt.in/vakalatnama-generator.html">Generate Vakalatnama</a>
-            <a href="/index.html">SLP Index Generator</a>
-            <a href="/affidavit-generator.html">SC Affidavit Generator</a>
-            <a href="/case-status.html">Case Status</a>
             <a href="https://onecourt.in/bare-acts">Bare Acts</a>
             <a class="current" href="/nclat">NCLAT Cause List</a>
           </div>
@@ -300,11 +268,6 @@ mark{background:#FDE68A;color:inherit;padding:0 1px;}
         <span class="tab-badge" id="badge-{{ court.key }}" hidden></span>
       </button>
       {% endfor %}
-      <button class="tab-btn" data-court="case-status" id="tab-case-status"
-        role="tab" aria-controls="panel-case-status" aria-selected="false">
-        <span class="tab-label">SC Case Status</span>
-        <span class="tab-city">Supreme Court</span>
-      </button>
     </div>
 
     <div class="search-row">
@@ -332,107 +295,6 @@ mark{background:#FDE68A;color:inherit;padding:0 1px;}
     </div>
     {% endfor %}
 
-    <div class="tab-panel" role="tabpanel" id="panel-case-status" data-court="case-status" hidden>
-      <div class="cs-panel">
-        <div class="cs-grid">
-
-          <!-- LEFT: form -->
-          <div>
-            <div class="cs-card">
-              <div class="cs-ch">Case Details</div>
-              <div class="cs-cb">
-                <div>
-                  <label class="cs-lbl" for="cs-type">Case Type</label>
-                  <select id="cs-type" style="width:100%;font-family:var(--font-ui);font-size:13px;padding:8px 10px;border:1.5px solid var(--line);background:#fff;color:var(--ink);outline:none;appearance:none;">
-                    <option value="">— Select —</option>
-                    <option value="1">Special Leave Petition (Civil)</option>
-                    <option value="2">Special Leave Petition (Criminal)</option>
-                    <option value="3">Civil Appeal</option>
-                    <option value="4">Criminal Appeal</option>
-                    <option value="5">Writ Petition (Civil)</option>
-                    <option value="6">Writ Petition (Criminal)</option>
-                    <option value="7">Transfer Petition (Civil)</option>
-                    <option value="8">Transfer Petition (Criminal)</option>
-                    <option value="9">Review Petition (Civil)</option>
-                    <option value="10">Review Petition (Criminal)</option>
-                    <option value="11">Transferred Case (Civil)</option>
-                    <option value="12">Transferred Case (Criminal)</option>
-                    <option value="13">SLP (Civil) — Disposed</option>
-                    <option value="14">SLP (Criminal) — Disposed</option>
-                    <option value="15">Writ Petition (Civil) — Disposed</option>
-                    <option value="16">Writ Petition (Criminal) — Disposed</option>
-                    <option value="17">Original Suit</option>
-                    <option value="18">Death Reference Case</option>
-                    <option value="19">Contempt Petition (Civil)</option>
-                    <option value="20">Contempt Petition (Criminal)</option>
-                    <option value="21">Tax Reference Case</option>
-                    <option value="22">Special Reference Case</option>
-                    <option value="23">Election Petition (Civil)</option>
-                    <option value="24">Arbitration Petition</option>
-                    <option value="25">Curative Petition (Civil)</option>
-                    <option value="26">Curative Petition (Criminal)</option>
-                    <option value="27">Ref. U/A 317(1)</option>
-                    <option value="28">Motion (Criminal)</option>
-                    <option value="31">Diary No. &amp; Year</option>
-                    <option value="32">Suo Moto Writ Petition (Civil)</option>
-                    <option value="33">Suo Moto Writ Petition (Criminal)</option>
-                    <option value="34">Suo Moto Contempt Petition (Civil)</option>
-                    <option value="35">Suo Moto Contempt Petition (Criminal)</option>
-                    <option value="37">Ref. U/S 14 RTI</option>
-                    <option value="38">Ref. U/S 17 RTI</option>
-                    <option value="39">Miscellaneous Application</option>
-                    <option value="40">Suo Moto Transfer Petition (Civil)</option>
-                    <option value="41">Suo Moto Transfer Petition (Criminal)</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="cs-lbl" for="cs-no">Case Number</label>
-                  <input type="number" id="cs-no" placeholder="e.g. 12345" min="1"
-                    style="width:100%;font-family:var(--font-ui);font-size:13px;padding:8px 10px;border:1.5px solid var(--line);background:#fff;color:var(--ink);outline:none;"
-                    onkeydown="if(event.key==='Enter')csSearch()">
-                </div>
-                <div>
-                  <label class="cs-lbl" for="cs-year">Year</label>
-                  <select id="cs-year" style="width:100%;font-family:var(--font-ui);font-size:13px;padding:8px 10px;border:1.5px solid var(--line);background:#fff;color:var(--ink);outline:none;appearance:none;"></select>
-                </div>
-              </div>
-            </div>
-
-            <div class="cs-card">
-              <div class="cs-ch">
-                <span>CAPTCHA</span>
-                <button class="cs-btn-sm" id="cs-refresh-btn">↻ Refresh</button>
-              </div>
-              <div class="cs-cb">
-                <div class="cs-capt-wrap">
-                  <div class="cs-skel" id="cs-skel"></div>
-                  <img class="cs-capt-img" id="cs-img" src="" alt="CAPTCHA" style="display:none;">
-                </div>
-                <div class="cs-capt-status" id="cs-status">Loading…</div>
-                <div>
-                  <label class="cs-lbl" for="cs-capt-in">Enter Text Shown Above</label>
-                  <input type="text" id="cs-capt-in" placeholder="Type the characters"
-                    autocomplete="off" autocorrect="off" spellcheck="false"
-                    style="width:100%;font-family:var(--font-ui);font-size:13px;padding:8px 10px;border:1.5px solid var(--line);background:#fff;color:var(--ink);outline:none;"
-                    onkeydown="if(event.key==='Enter')csSearch()">
-                </div>
-                <button class="cs-btn" id="cs-btn" onclick="csSearch()" disabled>Search Case</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- RIGHT: results -->
-          <div class="cs-results-out">
-            <div class="cs-results-hd">Results</div>
-            <div class="cs-results-body" id="cs-results">
-              <div class="cs-ph">Enter case details and solve the CAPTCHA, then click Search.</div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
   </div>
 </div>
 
@@ -445,13 +307,13 @@ mark{background:#FDE68A;color:inherit;padding:0 1px;}
 /* ── AUTH ────────────────────────────────────────────────────── */
 (function(){
   const o=document.getElementById('auth-overlay');
-  if(sessionStorage.getItem('oc-slp-auth')==='1'){o.style.display='none';}
+  if(sessionStorage.getItem('oc-nclat-auth')==='1'){o.style.display='none';}
   else{o.style.display='flex';}
 })();
 function checkAuth(){
   const pwd=document.getElementById('auth-input').value;
   if(pwd==='SLP@9kTm'){
-    sessionStorage.setItem('oc-slp-auth','1');
+    sessionStorage.setItem('oc-nclat-auth','1');
     document.getElementById('auth-overlay').style.display='none';
   } else {
     document.getElementById('auth-err').textContent='Incorrect password. Try again.';
@@ -523,16 +385,13 @@ function initTabs(){
     btn.addEventListener('click',()=>{
       const key=btn.dataset.court;
       switchTab(key);
-      if(key==='case-status'){ csInitIfNeeded(); }
-      else{ loadPanel(key); }
+      loadPanel(key);
     });
   });
 }
 
 function switchTab(key){
   state.court=key;
-  const isSci=key==='case-status';
-  document.querySelector('.search-row').hidden=isSci;
   document.querySelectorAll('.tab-btn').forEach(b=>{
     const on=b.dataset.court===key;
     b.classList.toggle('active',on);
@@ -543,7 +402,7 @@ function switchTab(key){
     p.classList.toggle('active',on);
     if(on) p.removeAttribute('hidden'); else p.setAttribute('hidden','');
   });
-  if(!isSci) applySearch();
+  applySearch();
 }
 
 /* ── Data loading ────────────────────────────────────────────── */
@@ -687,102 +546,6 @@ async function loadStatus(){
     $scraped.textContent='Last scraped: '+d.toLocaleTimeString('en-IN');
   }
 }
-
-/* ── SC Case Status ──────────────────────────────────────────── */
-let csSession={token:null,scid:null,hiddenFields:{},blobUrl:null};
-let csInited=false;
-
-function csInitIfNeeded(){ if(!csInited){csInited=true;csInit();} }
-
-function csSetReady(r){ document.getElementById('cs-btn').disabled=!r; }
-function csSetStatus(msg,err=false){
-  const el=document.getElementById('cs-status');
-  el.textContent=msg; el.style.color=err?'var(--danger)':'var(--muted)';
-}
-function csShowLoading(on){
-  document.getElementById('cs-skel').style.display=on?'block':'none';
-  document.getElementById('cs-img').style.display=on?'none':'block';
-}
-
-async function csInit(){
-  csSetReady(false); csSetStatus('Loading CAPTCHA…'); csShowLoading(true);
-  try{
-    const r=await fetch('/api/sci/init');
-    if(!r.ok) throw new Error('Server error '+r.status);
-    const d=await r.json();
-    if(d.error) throw new Error(d.error);
-    csSession.token=d.token; csSession.scid=d.scid; csSession.hiddenFields=d.hiddenFields;
-    await csFetchImg();
-    csSetReady(true); csSetStatus('');
-    document.getElementById('cs-capt-in').focus();
-  }catch(e){ csShowLoading(false); csSetStatus('Failed: '+e.message,true); }
-}
-
-async function csFetchImg(){
-  const r=await fetch('/api/sci/captcha-img',{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({token:csSession.token,scid:csSession.scid}),
-  });
-  if(!r.ok) throw new Error('CAPTCHA image fetch failed');
-  const blob=await r.blob();
-  if(csSession.blobUrl) URL.revokeObjectURL(csSession.blobUrl);
-  csSession.blobUrl=URL.createObjectURL(blob);
-  document.getElementById('cs-img').src=csSession.blobUrl;
-  csShowLoading(false);
-}
-
-document.getElementById('cs-refresh-btn').addEventListener('click',()=>{
-  document.getElementById('cs-capt-in').value='';
-  csSession={token:null,scid:null,hiddenFields:{},blobUrl:null};
-  csInit();
-});
-
-async function csSearch(){
-  const type=document.getElementById('cs-type').value;
-  const no=document.getElementById('cs-no').value.trim();
-  const year=document.getElementById('cs-year').value;
-  const capt=document.getElementById('cs-capt-in').value.trim();
-  if(!type){alert('Please select a case type.');return;}
-  if(!no){alert('Please enter a case number.');return;}
-  if(!capt){alert('Please enter the CAPTCHA text.');return;}
-  if(!csSession.token){alert('CAPTCHA expired — click Refresh.');return;}
-
-  const rb=document.getElementById('cs-results');
-  rb.innerHTML='<div class="cs-ph"><div class="spinner" style="margin:0 auto 8px;"></div>Searching…</div>';
-  csSetReady(false);
-
-  try{
-    const r=await fetch('/api/sci/search',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({token:csSession.token,hiddenFields:csSession.hiddenFields,
-        caseType:type,caseNo:no,year,captchaAnswer:capt}),
-    });
-    const d=await r.json();
-    if(d.success){
-      const html=(d.data&&d.data.resultsHtml)?d.data.resultsHtml:d.data;
-      rb.innerHTML='<div style="overflow-x:auto">'+html+'</div>';
-    }else{
-      let msg='No records found.';
-      try{const e=typeof d.data==='string'?JSON.parse(d.data):d.data;if(e?.message)msg=e.message;}catch(_){}
-      rb.innerHTML='<div class="cs-ph" style="color:var(--danger)">'+esc(msg)+'</div>';
-    }
-  }catch(e){
-    rb.innerHTML='<div class="cs-ph" style="color:var(--danger)">Request failed: '+esc(e.message)+'</div>';
-  }
-  csSession.token=null;
-  document.getElementById('cs-capt-in').value='';
-  csInit();
-}
-
-/* Populate year dropdown */
-(function(){
-  const sel=document.getElementById('cs-year');
-  const now=new Date().getFullYear();
-  for(let y=now;y>=1951;y--){
-    const o=document.createElement('option');
-    o.value=y;o.textContent=y;if(y===now)o.selected=true;sel.appendChild(o);
-  }
-})();
 
 /* ── Boot ────────────────────────────────────────────────────── */
 initTabs();
