@@ -236,11 +236,20 @@ def _parse_table(raw_table: List[List], learned_keys: Optional[Dict] = None) -> 
 # ---------------------------------------------------------------------------
 
 def _is_left_only_table(table: List[List]) -> bool:
-    """True if table has ≤2 columns and contains S.No. — left side of a split page."""
+    """True if table has ≤2 non-empty columns and contains S.No. — left side of a split page.
+
+    pdfplumber sometimes detects a spurious 3rd empty column from the page gutter;
+    we count only columns that contain at least one non-blank cell.
+    """
     if not table:
         return False
     ncols = max(len(r) for r in table)
-    if ncols > 2:
+    # Count columns that actually have content
+    nonempty = sum(
+        1 for col in range(ncols)
+        if any(_clean(r[col] if col < len(r) else None) for r in table)
+    )
+    if nonempty > 2:
         return False
     return any(_is_sn(_clean(r[0])) for r in table if r and r[0] is not None)
 
