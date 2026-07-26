@@ -171,11 +171,63 @@ mark{background:#FDE68A;color:inherit;padding:0 1px;}
 
 /* ── RESPONSIVE ──────────────────────────────────────────────── */
 @media(max-width:640px){
-  .oc-navlink{display:none;}
-  .app{padding:16px 12px 40px;}
-  td.counsel{display:none;}
-  header.top{flex-direction:column;align-items:flex-start;}
-  .header-right{align-items:flex-start;}
+  /* ── Auth modal ── */
+  .auth-card{padding:32px 24px!important;}
+
+  /* ── Site header: trim to logo + contact only ── */
+  .site-header .inner{height:52px;padding:0 14px;}
+  .site-header .tag{display:none;}
+  .oc-nav{display:none;}
+  .oc-contact{font-size:12px;padding:6px 10px;}
+
+  /* ── Page ── */
+  .app{padding:14px 12px 40px;}
+
+  /* ── Page header ── */
+  header.top{flex-direction:column;align-items:flex-start;gap:8px;padding-bottom:12px;margin-bottom:16px;}
+  header.top h1{font-size:22px;}
+  header.top .desc{font-size:12px;}
+  .header-right{flex-direction:row;align-items:center;gap:12px;width:100%;}
+  .btn-refresh{padding:6px 12px;font-size:12px;}
+
+  /* ── Date pills ── */
+  .date-row{margin-bottom:14px;}
+  .date-row-label{display:none;}
+  .date-pill{padding:4px 12px;font-size:11.5px;}
+
+  /* ── Court tabs ── */
+  .tab-btn{padding:9px 10px;}
+  .tab-label{font-size:12px;}
+  .tab-city{display:none;}
+  .tab-badge{top:5px;right:5px;}
+
+  /* ── Search ── */
+  .search-row{padding:8px 12px;}
+  .search-input{font-size:12.5px;}
+
+  /* ── List sections ── */
+  .list-section{padding:12px 10px 14px;}
+  .section-hd{flex-direction:column;align-items:flex-start;gap:6px;}
+
+  /* ── Table → stacked cards ── */
+  .tbl-wrap{overflow-x:hidden;}
+  .tbl-wrap table,.tbl-wrap tbody{display:block;width:100%;}
+  .tbl-wrap thead{display:none;}
+  .tbl-wrap tbody tr{
+    display:block;width:100%;padding:10px 12px;
+    border-bottom:1px solid var(--line);background:var(--paper);
+  }
+  .tbl-wrap tbody tr:nth-child(even){background:rgba(0,0,0,.02);}
+  .tbl-wrap tbody tr:hover{background:var(--accent-bg);}
+  .tbl-wrap tbody tr.hidden-row{display:none;}
+  .tbl-wrap td{display:block;padding:0;border:none;max-width:none;font-size:13px;overflow-wrap:break-word;}
+  .tbl-wrap td.sno{display:none;}
+  .tbl-wrap td.counsel{display:none;}
+  .tbl-wrap td.caseno{
+    font-size:10.5px;color:var(--accent);font-family:var(--font-mono);
+    font-weight:500;margin-bottom:4px;white-space:normal;overflow-wrap:break-word;
+  }
+  .tbl-wrap td.parties{font-weight:600;color:var(--ink);}
 }
 </style>
 </head>
@@ -183,7 +235,7 @@ mark{background:#FDE68A;color:inherit;padding:0 1px;}
 
 <!-- ── AUTH OVERLAY ─────────────────────────────────────────── -->
 <div id="auth-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--primary);align-items:center;justify-content:center;">
-  <div style="background:var(--paper);padding:40px 48px;max-width:380px;width:90%;text-align:center;">
+  <div class="auth-card" style="background:var(--paper);padding:40px 48px;max-width:380px;width:90%;text-align:center;">
     <div style="margin-bottom:20px;">
       <svg viewBox="0 0 100 100" width="40" height="40" style="display:inline-block;color:var(--primary)"><rect x="12" y="12" width="76" height="76" rx="17" fill="none" stroke="currentColor" stroke-width="7"/><circle cx="40" cy="50" r="11" fill="none" stroke="currentColor" stroke-width="6"/><path d="M68 41 A11 11 0 1 0 68 59" fill="none" stroke="#C39A52" stroke-width="6" stroke-linecap="round"/></svg>
     </div>
@@ -220,6 +272,7 @@ mark{background:#FDE68A;color:inherit;padding:0 1px;}
             <a href="https://onecourt.in/Court_Holiday_Planner.html">Court Holiday Planner</a>
             <a href="https://onecourt.in/vakalatnama-generator.html">Generate Vakalatnama</a>
             <a href="https://onecourt.in/bare-acts">Bare Acts</a>
+            <a href="https://sc.onecourt.in">SCI Cause List</a>
             <a class="current" href="/nclat">NCLAT Cause List</a>
           </div>
         </details>
@@ -452,7 +505,7 @@ function cols(items){
 }
 function buildTable(items,c,term){
   if(!items.length) return '';
-  const hd=c.map(col=>`<th>${esc(col.label)}</th>`).join('');
+  const hd=c.map(col=>`<th class="${col.cls}">${esc(col.label)}</th>`).join('');
   const rows=items.map(item=>{
     const cells=c.map(col=>`<td class="${col.cls}">${hi(item[col.key]??'',term)}</td>`).join('');
     return `<tr data-search="${esc(JSON.stringify(item)).toLowerCase()}">${cells}</tr>`;
