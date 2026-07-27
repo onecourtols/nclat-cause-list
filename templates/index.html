@@ -448,16 +448,34 @@ function show(el){el.hidden=false;}
 function hide(el){el.hidden=true;}
 
 /* ── Date pills ─────────────────────────────────────────────── */
+function clientToday(){
+  const n=new Date();
+  return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
+}
+function dateLabel(d){
+  const t=clientToday();
+  if(d===t) return 'Today';
+  if(d<t)   return null; /* past — skip */
+  /* first future date gets "Tomorrow" */
+  return null; /* resolved in loadDates loop */
+}
 async function loadDates(){
-  const {dates} = await fetch('/api/dates').then(r=>r.json());
+  const {dates} = await fetch('/api/dates').then(r=>r.json()).catch(()=>({dates:[]}));
   $pills.innerHTML='';
-  if(!dates||!dates.length){
+  const today=clientToday();
+  /* filter past dates and recompute labels entirely client-side */
+  const future=(dates||[]).filter(({date})=>date>=today);
+  if(!future.length){
     $pills.innerHTML='<span style="color:var(--muted);font-size:12px;">No dates yet — scrapes run 4–8 PM IST.</span>';
     document.querySelectorAll('.panel-loading').forEach(hide);
     document.querySelectorAll('.panel-empty').forEach(show);
     return;
   }
-  dates.forEach(({date,label})=>{
+  let tomorrowSet=false;
+  future.forEach(({date})=>{
+    let label='';
+    if(date===today)         label='Today';
+    else if(!tomorrowSet){ label='Tomorrow'; tomorrowSet=true; }
     const b=document.createElement('button');
     b.className='date-pill';
     b.dataset.date=date;
@@ -465,7 +483,7 @@ async function loadDates(){
     b.addEventListener('click',()=>selectDate(date));
     $pills.appendChild(b);
   });
-  selectDate(dates[0].date);
+  selectDate(future[0].date);
 }
 
 function selectDate(date){
