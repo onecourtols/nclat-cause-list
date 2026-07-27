@@ -358,7 +358,7 @@ mark{background:#FDE68A;color:inherit;padding:0 1px;}
 
     <!-- Live display board strip -->
     <div class="display-board db-loading" id="display-board" aria-label="Live court status">
-      <span class="db-label">Live</span>
+      <span class="db-label">Live Display Board</span>
       <div class="db-chips" id="db-chips">
         <!-- skeleton chips while loading -->
         {% for court in courts %}
@@ -671,11 +671,9 @@ function dbRender(cases){
     const dot=`<span class="db-dot" style="background:${dbStatusColor(c.colour_code)}"></span>`;
     const court=`<span class="db-court">${m.short}</span>`;
     const item=c.item_number?`<span class="db-item">&thinsp;#${esc(c.item_number)}</span>`:'';
-    const yr=c.case_year?String(c.case_year).slice(-2):'';
-    const caseRef=c.case_number&&yr?`<span class="db-case">&thinsp;${esc(c.case_number)}/${yr}</span>`:'';
     const tooltip=c.case_title?esc(c.case_title):(c.colour_code?'In Session':'Not in session');
     const active=state.court===m.key?' db-tab-active':'';
-    return `<div class="db-chip${active}" data-dbkey="${m.key}" title="${tooltip}">${dot}${court}${item}${caseRef}</div>`;
+    return `<div class="db-chip${active}" data-dbkey="${m.key}" title="${tooltip}">${dot}${court}${item}</div>`;
   }).join('');
   chips.querySelectorAll('.db-chip[data-dbkey]').forEach(ch=>{
     ch.addEventListener('click',()=>switchTab(ch.dataset.dbkey));
