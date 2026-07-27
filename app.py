@@ -99,6 +99,23 @@ def api_scrape():
     return jsonify(summary)
 
 
+@app.route("/api/display-board")
+def api_display_board():
+    """Proxy NCLAT live display board to avoid CORS."""
+    import requests as req
+    try:
+        r = req.get(
+            "https://nclat.nic.in/display-board/user-display-board/get-list",
+            timeout=8,
+            headers={"Referer": "https://nclat.nic.in/display-board/"},
+        )
+        r.raise_for_status()
+        return jsonify(r.json())
+    except Exception as exc:
+        logger.warning("Display board fetch failed: %s", exc)
+        return jsonify({"status": False, "error": str(exc)}), 502
+
+
 @app.route("/api/status")
 def api_status():
     last = get_last_scrape()
