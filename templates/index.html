@@ -149,8 +149,8 @@ header.top .desc{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.
 
 /* ── TABLE ───────────────────────────────────────────────────── */
 .tbl-wrap{overflow-x:auto;border:1px solid var(--line);}
-table{width:100%;border-collapse:collapse;font-size:13px;background:var(--paper);}
-thead th{background:var(--primary);color:rgba(255,255,255,.58);font-size:9.5px;font-family:var(--font-mono);letter-spacing:.12em;text-transform:uppercase;font-weight:700;padding:9px 12px;text-align:left;border-bottom:none;white-space:nowrap;}
+table{width:100%;table-layout:fixed;border-collapse:collapse;font-size:13px;background:var(--paper);}
+thead th{background:var(--primary);color:rgba(255,255,255,.58);font-size:9.5px;font-family:var(--font-mono);letter-spacing:.12em;text-transform:uppercase;font-weight:700;padding:9px 12px;text-align:left;border-bottom:none;}
 tbody tr{border-bottom:1px solid var(--line);}
 tbody tr:nth-child(even){background:rgba(0,0,0,.02);}
 tbody tr:last-child{border-bottom:none;}
@@ -158,10 +158,10 @@ tbody tr:hover{background:var(--accent-bg);}
 tbody tr.hidden-row{display:none;}
 tbody tr.hl{background:#FEF9C3;}
 td{padding:9px 12px;vertical-align:top;line-height:1.45;word-break:break-word;overflow-wrap:break-word;}
-td.sno{width:40px;color:var(--faint);font-size:11px;font-family:var(--font-mono);white-space:nowrap;}
-td.caseno{font-family:var(--font-mono);font-size:11.5px;color:var(--accent);max-width:240px;font-weight:500;}
-td.parties{font-weight:600;max-width:340px;font-size:13px;}
-td.counsel{color:var(--muted);max-width:200px;font-size:12.5px;}
+td.sno{color:var(--faint);font-size:11px;font-family:var(--font-mono);}
+td.caseno{font-family:var(--font-mono);font-size:11.5px;color:var(--accent);font-weight:500;}
+td.parties{font-weight:600;font-size:13px;}
+td.counsel{color:var(--muted);font-size:12.5px;}
 mark{background:#FDE68A;color:inherit;padding:0 1px;}
 
 /* ── LIVE DISPLAY BOARD ──────────────────────────────────────── */
@@ -535,13 +535,13 @@ async function prefetchBadges(){
 
 /* ── Rendering ───────────────────────────────────────────────── */
 const KNOWN_COLS=[
-  {key:'sno',label:'S.No.',cls:'sno'},
-  {key:'case_no',label:'Case No.',cls:'caseno'},
-  {key:'parties',label:'Parties',cls:'parties'},
-  {key:'counsel_appellant',label:'Counsel (Appellant)',cls:'counsel'},
-  {key:'counsel_respondent',label:'Counsel (Respondent)',cls:'counsel'},
-  {key:'remarks',label:'Remarks',cls:'counsel'},
-  {key:'coram',label:'Coram',cls:'counsel'},
+  {key:'sno',                label:'S.No.',               cls:'sno',     w:1},
+  {key:'case_no',            label:'Case No.',            cls:'caseno',  w:4},
+  {key:'parties',            label:'Parties',             cls:'parties', w:7},
+  {key:'counsel_appellant',  label:'Counsel (Appellant)', cls:'counsel', w:3.5},
+  {key:'counsel_respondent', label:'Counsel (Respondent)',cls:'counsel', w:3.5},
+  {key:'coram',              label:'Coram',               cls:'counsel', w:3.5},
+  {key:'remarks',            label:'Remarks',             cls:'counsel', w:3.5},
 ];
 function cols(items){
   const present=new Set(items.flatMap(r=>Object.keys(r)));
@@ -549,12 +549,14 @@ function cols(items){
 }
 function buildTable(items,c,term){
   if(!items.length) return '';
+  const totalW=c.reduce((s,col)=>s+col.w,0);
+  const colgroup=`<colgroup>${c.map(col=>`<col style="width:${(col.w/totalW*100).toFixed(1)}%">`).join('')}</colgroup>`;
   const hd=c.map(col=>`<th class="${col.cls}">${esc(col.label)}</th>`).join('');
   const rows=items.map(item=>{
     const cells=c.map(col=>`<td class="${col.cls}">${hi(item[col.key]??'',term)}</td>`).join('');
     return `<tr data-search="${esc(JSON.stringify(item)).toLowerCase()}">${cells}</tr>`;
   }).join('');
-  return `<div class="tbl-wrap"><table><thead><tr>${hd}</tr></thead><tbody>${rows}</tbody></table></div>`;
+  return `<div class="tbl-wrap"><table>${colgroup}<thead><tr>${hd}</tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
 function render(court,data){
