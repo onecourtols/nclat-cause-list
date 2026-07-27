@@ -60,8 +60,27 @@ def index():
 
 @app.route("/api/dates")
 def api_dates():
-    """Return available dates from the DB."""
+    """Return available dates from the DB with labels computed at request time."""
+    from datetime import date as _date
+    today = _date.today().isoformat()
     dates = get_available_dates()
+    # Recompute labels fresh so Today/Tomorrow stay accurate regardless of when
+    # the scraper last ran.
+    future_count = 0
+    for entry in dates:
+        d = entry["date"]
+        if d < today:
+            entry["label"] = ""          # past — hide from UI
+        elif d == today:
+            entry["label"] = "Today"
+        elif future_count == 0:
+            entry["label"] = "Tomorrow"
+            future_count += 1
+        else:
+            entry["label"] = ""
+            future_count += 1
+    # Only expose today + future dates
+    dates = [e for e in dates if e["date"] >= today]
     return jsonify({"dates": dates})
 
 
