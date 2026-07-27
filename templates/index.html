@@ -471,15 +471,11 @@ async function loadDates(){
     document.querySelectorAll('.panel-empty').forEach(show);
     return;
   }
-  let tomorrowSet=false;
   future.forEach(({date})=>{
-    let label='';
-    if(date===today)         label='Today';
-    else if(!tomorrowSet){ label='Tomorrow'; tomorrowSet=true; }
     const b=document.createElement('button');
     b.className='date-pill';
     b.dataset.date=date;
-    b.textContent=label?`${label} (${fmt(date)})`:fmt(date);
+    b.textContent=fmt(date);
     b.addEventListener('click',()=>selectDate(date));
     $pills.appendChild(b);
   });
