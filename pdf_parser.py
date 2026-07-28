@@ -61,8 +61,15 @@ _CASE_NO_RE = re.compile(r"comp\.?\s*app|i\.a\.?\s*no|comp\.?\s*pet|appeal\s*no|
 _TIME_RE = re.compile(r"\b(\d{1,2}:\d{2}\s*(?:AM|PM))\b", re.I)
 # Captures from "In the Court of" up to the first section heading / table header
 _COURT_OF_RE = re.compile(
-    r"In the Court of\b(.+?)(?=\s+(?:For\s+(?:Admission|Hearing|Judgment|Orders?|Mention)|S\s*\.\s*No\b|CASE\s*NO\b|\d{2}\s*\.\s*\d{2}\s*\.\s*\d{4})|\Z)",
+    r"In the Court of\b(.+?)(?=\s+(?:For\s+(?:Admission|Hearing|Judgment|Orders?|Mention|Directions?|Miscellaneous)|S\s*\.\s*No\b|CASE\s*NO\b|\d{2}\s*\.\s*\d{2}\s*\.\s*\d{4})|\Z)",
     re.I | re.DOTALL
+)
+# Section-type headers that appear between tables
+_SECTION_RE = re.compile(
+    r"\bFor\s+((?:Final\s+Hearing|Passing\s+Orders?|Pronouncement\s+of\s+Judgment|"
+    r"Admission(?:\s*\([^)]*\))?|Judgment|Orders?|Hearing|Mention|Directions?|"
+    r"Miscellaneous|Condonation\s+of\s+Delay))\b",
+    re.I
 )
 
 
@@ -374,6 +381,36 @@ def _merge_split_pair(left: List[List], right: List[List]) -> List[Dict]:
 
 
 # ---------------------------------------------------------------------------
+# Per-table context tracking (bench + section)
+# ---------------------------------------------------------------------------
+
+def _update_context(text: str, bench: dict, section: str):
+    """
+    Parse text found above a table to update the current bench/section context.
+    Returns (new_bench_dict, new_section_str).
+    """
+    new_bench = dict(bench)
+    new_section = section
+
+    m = _TIME_RE.search(text)
+    if m:
+        t = re.sub(r"\s+", "", m.group(1)).upper()
+        new_bench["time"] = re.sub(r"(AM|PM)$", r" \1", t)
+
+    m = _COURT_OF_RE.search(text)
+    if m:
+        raw = re.sub(r"\s+", " ", m.group(1)).strip()
+        raw = re.sub(r"\s+F\s*or\s+\w.*$", "", raw, flags=re.I | re.DOTALL).strip()
+        new_bench["composition"] = "In the Court of " + raw
+
+    m = _SECTION_RE.search(text)
+    if m:
+        new_section = "For " + re.sub(r"\s+", " ", m.group(1)).strip()
+
+    return new_bench, new_section
+
+
+# ---------------------------------------------------------------------------
 # Bench composition extraction (time + judge names from page header text)
 # ---------------------------------------------------------------------------
 
@@ -408,11 +445,12 @@ def _extract_bench_info(pdf) -> dict:
 
 def fetch_and_parse(pdf_url: str, timeout: int = 30) -> dict:
     """
-    Download a PDF and return a dict:
+    Download a PDF and return:
       {'items': [...], 'bench_info': {'time': '...', 'composition': '...'}}
 
-    'items' contains case-item dicts with at minimum case_no or parties.
-    'bench_info' contains sitting time and judge composition from the PDF header.
+    Each item dict carries '_bench', '_time', '_section' fields indicating
+    which bench and cause-list section (e.g. "For Judgment") it belongs to.
+    'bench_info' is the primary (first-found) bench for backward compat.
     """
     logger.info("Fetching PDF: %s", pdf_url)
     resp = requests.get(
@@ -423,31 +461,75 @@ def fetch_and_parse(pdf_url: str, timeout: int = 30) -> dict:
 
     all_items: List[Dict] = []
     bench_info: dict = {}
-
-    # Shared column-key cache: learned from headed tables, reused by headerless ones
     learned_keys: Dict[int, List[str]] = {}
+
+    # Context persists across tables and pages
+    current_bench: dict = {}
+    current_section: str = ""
 
     with pdfplumber.open(io.BytesIO(resp.content)) as pdf:
         bench_info = _extract_bench_info(pdf)
 
         for page_num, page in enumerate(pdf.pages, start=1):
             try:
-                tables = page.extract_tables()
-                # Drop single-column sidebar artifacts
-                tables = [t for t in tables if t and max(len(r) for r in t) > 1]
+                table_objs = page.find_tables()
+                tables_data = [t.extract() for t in table_objs]
 
+                # Filter single-column sidebar artifacts
+                filtered: List[tuple] = [
+                    (obj, data) for obj, data in zip(table_objs, tables_data)
+                    if data and max(len(r) for r in data) > 1
+                ]
+
+                if not filtered:
+                    # No tables on this page — scan full text for context updates
+                    page_text = page.extract_text() or ""
+                    current_bench, current_section = _update_context(
+                        page_text, current_bench, current_section
+                    )
+                    continue
+
+                prev_bottom: float = 0.0
                 i = 0
-                while i < len(tables):
-                    table = tables[i]
+
+                while i < len(filtered):
+                    obj, table = filtered[i]
+
+                    # Scan text above this table to detect bench/section changes
+                    try:
+                        above = page.crop((0, prev_bottom, page.width, obj.bbox[1]))
+                        above_text = above.extract_text() or ""
+                    except Exception:
+                        above_text = ""
+
+                    current_bench, current_section = _update_context(
+                        above_text, current_bench, current_section
+                    )
+
+                    # Detect split-table pair (left + right side-by-side)
                     if (_is_left_only_table(table)
-                            and i + 1 < len(tables)
-                            and _is_right_only_table(tables[i + 1])):
-                        # Split page: merge left+right pair
-                        all_items.extend(_merge_split_pair(table, tables[i + 1]))
+                            and i + 1 < len(filtered)
+                            and _is_right_only_table(filtered[i + 1][1])):
+                        next_obj, next_table = filtered[i + 1]
+                        items = _merge_split_pair(table, next_table)
+                        prev_bottom = max(obj.bbox[3], next_obj.bbox[3])
                         i += 2
                     else:
-                        all_items.extend(_parse_table(table, learned_keys=learned_keys))
+                        items = _parse_table(table, learned_keys=learned_keys)
+                        prev_bottom = obj.bbox[3]
                         i += 1
+
+                    # Stamp each item with the current bench and section
+                    for item in items:
+                        if current_bench.get("time"):
+                            item["_time"] = current_bench["time"]
+                        if current_bench.get("composition"):
+                            item["_bench"] = current_bench["composition"]
+                        if current_section:
+                            item["_section"] = current_section
+
+                    all_items.extend(items)
+
             except Exception as exc:
                 logger.warning("Page %d parse error (%s): %s", page_num, pdf_url, exc)
 

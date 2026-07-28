@@ -147,10 +147,12 @@ header.top .desc{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.
 .pdf-link{font-size:11.5px;color:var(--gold);text-decoration:none;border:1.5px solid var(--gold);padding:3px 10px;border-radius:3px;font-weight:600;}
 .pdf-link:hover{background:var(--gold-bg);}
 
-/* ── BENCH INFO ──────────────────────────────────────────────── */
+/* ── BENCH INFO & SECTION HEADER ─────────────────────────────── */
 .bench-info{display:flex;align-items:baseline;gap:10px;padding:8px 14px;background:var(--panel);border:1px solid var(--line);border-bottom:none;font-size:12px;line-height:1.5;flex-wrap:wrap;}
 .bench-time{font-family:var(--font-mono);font-weight:700;font-size:11px;color:var(--accent);white-space:nowrap;flex-shrink:0;}
 .bench-composition{color:var(--muted);flex:1;}
+.section-type-hd{padding:5px 14px;font-size:9.5px;font-family:var(--font-mono);letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--jade);background:var(--panel);border:1px solid var(--line);border-bottom:none;}
+.list-section.supplementary .section-type-hd{color:var(--warn);}
 
 /* ── TABLE ───────────────────────────────────────────────────── */
 .tbl-wrap{overflow-x:auto;border:1px solid var(--line);}
@@ -584,10 +586,33 @@ function buildBenchInfo(bi){
   const comp=bi.composition?`<span class="bench-composition">${esc(bi.composition)}</span>`:'';
   return `<div class="bench-info">${time}${comp}</div>`;
 }
+function groupItems(items){
+  const groups=[];let cur=null;
+  for(const item of items){
+    const key=[item._bench||'',item._time||'',item._section||''].join('|');
+    if(!cur||cur.key!==key){
+      cur={key,bench:item._bench||'',time:item._time||'',section:item._section||'',items:[]};
+      groups.push(cur);
+    }
+    cur.items.push(item);
+  }
+  return groups;
+}
+function renderGroups(items,term){
+  const groups=groupItems(items);
+  let prevBenchKey='';
+  return groups.map(g=>{
+    const bk=g.time+'|'+g.bench;
+    const benchHtml=(bk!==prevBenchKey&&(g.time||g.bench))?buildBenchInfo({time:g.time,composition:g.bench}):'';
+    prevBenchKey=bk;
+    const secHtml=g.section?`<div class="section-type-hd">${esc(g.section)}</div>`:'';
+    return benchHtml+secHtml+buildTable(g.items,cols(g.items),term);
+  }).join('');
+}
 
 function render(court,data){
   hide(document.getElementById(`loading-${court}`));
-  const {supplementary=[],main=[],pdf_urls={},bench_info={}}=data;
+  const {supplementary=[],main=[],pdf_urls={}}=data;
   if(!supplementary.length&&!main.length){
     show(document.getElementById(`empty-${court}`)); return;
   }
@@ -600,7 +625,7 @@ function render(court,data){
       <div class="section-hd">
         <span class="section-title">★ Supplementary List <span class="section-badge">${supplementary.length} items</span></span>
         ${pdfA}
-      </div>${buildBenchInfo(bench_info.supplementary)}${buildTable(supplementary,cols(supplementary),term)}</div>`;
+      </div>${renderGroups(supplementary,term)}</div>`;
   }
   if(main.length){
     const pdfA=pdf_urls.main?`<a class="pdf-link" href="${esc(pdf_urls.main)}" target="_blank" rel="noreferrer">PDF ↗</a>`:'';
@@ -608,7 +633,7 @@ function render(court,data){
       <div class="section-hd">
         <span class="section-title">Daily Cause List <span class="section-badge">${main.length} items</span></span>
         ${pdfA}
-      </div>${buildBenchInfo(bench_info.main)}${buildTable(main,cols(main),term)}</div>`;
+      </div>${renderGroups(main,term)}</div>`;
   }
 
   const el=document.getElementById(`content-${court}`);
