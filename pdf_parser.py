@@ -58,6 +58,12 @@ COLUMN_ALIASES: Dict[str, str] = {
 
 _SN_RE = re.compile(r"^\d+\.?$")
 _CASE_NO_RE = re.compile(r"comp\.?\s*app|i\.a\.?\s*no|comp\.?\s*pet|appeal\s*no|petition\s*no", re.I)
+_TIME_RE = re.compile(r"\b(\d{1,2}:\d{2}\s*(?:AM|PM))\b", re.I)
+# Captures from "In the Court of" up to the first section heading / table header
+_COURT_OF_RE = re.compile(
+    r"In the Court of\b(.+?)(?=\s+(?:For\s+(?:Admission|Hearing|Judgment|Orders?|Mention)|S\s*\.\s*No\b|CASE\s*NO\b|\d{2}\s*\.\s*\d{2}\s*\.\s*\d{4})|\Z)",
+    re.I | re.DOTALL
+)
 
 
 def _clean(val) -> str:
@@ -298,9 +304,14 @@ def _parse_right_table_entries(table: List[List]) -> List[Dict]:
     if any(merged_hdr):
         col_keys = [_map_header(h) for h in merged_hdr]
     else:
-        # Positional fallback for 5-col right table
-        n_party = max(1, num_cols - 3)
-        col_keys = (["parties"] * n_party + ["counsel_appellant", "counsel_appellant", "counsel_respondent"])[:num_cols]
+        # Positional fallback: col0 is always the empty case-boundary marker;
+        # actual content (parties, counsel) starts at col1.
+        if num_cols <= 2:
+            col_keys = [""] + ["parties"] * (num_cols - 1)
+        elif num_cols == 3:
+            col_keys = ["", "parties", "counsel_respondent"]
+        else:
+            col_keys = ["", "parties"] + ["counsel_appellant"] * (num_cols - 3) + ["counsel_respondent"]
 
     # Split into cases: new case when col[0] is '' (empty string)
     entries: List[List[str]] = []
@@ -363,14 +374,45 @@ def _merge_split_pair(left: List[List], right: List[List]) -> List[Dict]:
 
 
 # ---------------------------------------------------------------------------
+# Bench composition extraction (time + judge names from page header text)
+# ---------------------------------------------------------------------------
+
+def _extract_bench_info(pdf) -> dict:
+    """Extract sitting time and bench composition from the first 1–2 pages."""
+    bench: dict = {}
+    try:
+        for page in pdf.pages[:2]:
+            text = page.extract_text() or ""
+            if not bench.get("time"):
+                m = _TIME_RE.search(text)
+                if m:
+                    t = re.sub(r"\s+", "", m.group(1)).upper()
+                    bench["time"] = re.sub(r"(AM|PM)$", r" \1", t)
+            if not bench.get("composition"):
+                m = _COURT_OF_RE.search(text)
+                if m:
+                    raw = re.sub(r"\s+", " ", m.group(1)).strip()
+                    # Strip stray section headers appended by pdfplumber text merging
+                    raw = re.sub(r"\s+F\s*or\s+\w.*$", "", raw, flags=re.I | re.DOTALL).strip()
+                    bench["composition"] = "In the Court of " + raw
+            if bench.get("time") and bench.get("composition"):
+                break
+    except Exception:
+        pass
+    return bench
+
+
+# ---------------------------------------------------------------------------
 # PDF fetching + multi-page extraction
 # ---------------------------------------------------------------------------
 
-def fetch_and_parse(pdf_url: str, timeout: int = 30) -> List[Dict]:
+def fetch_and_parse(pdf_url: str, timeout: int = 30) -> dict:
     """
-    Download a PDF and return a list of case-item dicts.
-    Each dict has at minimum: case_no (or parties).
-    Optional fields: sno, counsel_appellant, counsel_respondent, remarks, coram.
+    Download a PDF and return a dict:
+      {'items': [...], 'bench_info': {'time': '...', 'composition': '...'}}
+
+    'items' contains case-item dicts with at minimum case_no or parties.
+    'bench_info' contains sitting time and judge composition from the PDF header.
     """
     logger.info("Fetching PDF: %s", pdf_url)
     resp = requests.get(
@@ -380,11 +422,14 @@ def fetch_and_parse(pdf_url: str, timeout: int = 30) -> List[Dict]:
     resp.raise_for_status()
 
     all_items: List[Dict] = []
+    bench_info: dict = {}
 
     # Shared column-key cache: learned from headed tables, reused by headerless ones
     learned_keys: Dict[int, List[str]] = {}
 
     with pdfplumber.open(io.BytesIO(resp.content)) as pdf:
+        bench_info = _extract_bench_info(pdf)
+
         for page_num, page in enumerate(pdf.pages, start=1):
             try:
                 tables = page.extract_tables()
@@ -416,4 +461,4 @@ def fetch_and_parse(pdf_url: str, timeout: int = 30) -> List[Dict]:
             deduped.append(item)
 
     logger.info("Parsed %d items from %s", len(deduped), pdf_url)
-    return deduped
+    return {"items": deduped, "bench_info": bench_info}

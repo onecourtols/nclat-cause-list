@@ -18,6 +18,12 @@ def get_conn():
 def init_db():
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     with get_conn() as conn:
+        # Add bench_info column if upgrading from an older schema
+        try:
+            conn.execute("ALTER TABLE cause_lists ADD COLUMN bench_info TEXT")
+        except Exception:
+            pass  # column already exists
+
         conn.executescript("""
             CREATE TABLE IF NOT EXISTS cause_lists (
                 id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -26,6 +32,7 @@ def init_db():
                 list_type   TEXT NOT NULL CHECK(list_type IN ('main', 'supplementary')),
                 pdf_url     TEXT,
                 items       TEXT NOT NULL,  -- JSON array
+                bench_info  TEXT,           -- JSON object: {time, composition}
                 scraped_at  TEXT NOT NULL,
                 UNIQUE(date, court_key, list_type)
             );
@@ -48,17 +55,19 @@ def init_db():
 
 
 def upsert_cause_list(date: str, court_key: str, list_type: str,
-                      pdf_url: str, items: list) -> None:
+                      pdf_url: str, items: list, bench_info: dict = None) -> None:
     now = datetime.utcnow().isoformat()
     with get_conn() as conn:
         conn.execute("""
-            INSERT INTO cause_lists (date, court_key, list_type, pdf_url, items, scraped_at)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO cause_lists (date, court_key, list_type, pdf_url, items, bench_info, scraped_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(date, court_key, list_type)
             DO UPDATE SET pdf_url=excluded.pdf_url,
                           items=excluded.items,
+                          bench_info=excluded.bench_info,
                           scraped_at=excluded.scraped_at
-        """, (date, court_key, list_type, pdf_url, json.dumps(items), now))
+        """, (date, court_key, list_type, pdf_url, json.dumps(items),
+              json.dumps(bench_info) if bench_info else None, now))
 
 
 def upsert_dates(dates: list) -> None:
@@ -82,18 +91,20 @@ def get_available_dates() -> list:
 
 
 def get_cause_list(date: str, court_key: str) -> dict:
-    """Returns {'supplementary': [...], 'main': [...]} for a date+court."""
+    """Returns {'supplementary': [...], 'main': [...], 'bench_info': {...}} for a date+court."""
     with get_conn() as conn:
         rows = conn.execute(
-            "SELECT list_type, items, pdf_url, scraped_at FROM cause_lists "
+            "SELECT list_type, items, pdf_url, bench_info, scraped_at FROM cause_lists "
             "WHERE date=? AND court_key=?",
             (date, court_key)
         ).fetchall()
 
-    result = {"supplementary": [], "main": [], "pdf_urls": {}}
+    result = {"supplementary": [], "main": [], "pdf_urls": {}, "bench_info": {}}
     for row in rows:
         result[row["list_type"]] = json.loads(row["items"])
         result["pdf_urls"][row["list_type"]] = row["pdf_url"]
+        if row["bench_info"]:
+            result["bench_info"][row["list_type"]] = json.loads(row["bench_info"])
     return result
 
 

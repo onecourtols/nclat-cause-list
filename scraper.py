@@ -208,13 +208,14 @@ def run_scrape() -> dict:
 
         for pdf_info in discovery["pdfs"]:
             try:
-                items = fetch_and_parse(pdf_info["url"])
+                result = fetch_and_parse(pdf_info["url"])
                 upsert_cause_list(
                     date=pdf_info["date"],
                     court_key=pdf_info["court_key"],
                     list_type=pdf_info["list_type"],
                     pdf_url=pdf_info["url"],
-                    items=items,
+                    items=result["items"],
+                    bench_info=result.get("bench_info"),
                 )
                 summary["processed"] += 1
             except Exception as exc:
